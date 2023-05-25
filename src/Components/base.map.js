@@ -16,8 +16,8 @@ export default function App() {
         const map = new mapboxgl.Map({
             container: mapContainer.current,
             style: env_vars.MAP_STYLE,
-            center: [-70.9, 42.35],
-            zoom: 13,
+            center: [78.476681027237, 22.1991660760527],
+            zoom: 5
         });
         map.addControl(
             new mapboxgl.GeolocateControl({
