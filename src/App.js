@@ -1,7 +1,8 @@
+import BaseMap from "./Components/base.map";
 function App() {
   return (
-    <div className="App">
-    </div>
+
+    <BaseMap></BaseMap>
   );
 }
 
