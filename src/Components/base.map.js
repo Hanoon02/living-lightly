@@ -7,17 +7,35 @@ import { Box } from '@mui/material';
 mapboxgl.accessToken = env_vars.ACCESS_TOKEN
 
 export default function App() {
+
+
     const mapContainer = useRef(null);
     const map = useRef(null);
-    useEffect(() => {
-        if (map.current) return; // initialize map only once
-        map.current = new mapboxgl.Map({
+
+    const initMap = () => {
+        const map = new mapboxgl.Map({
             container: mapContainer.current,
             style: env_vars.MAP_STYLE,
             center: [-70.9, 42.35],
-            zoom: 13
+            zoom: 13,
         });
-    });
+        map.addControl(
+            new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true,
+                showUserHeading: true
+            })
+        );
+        return map
+    }
+    useEffect(() => {
+        if (map.current) return;
+        map.current = initMap()
+        
+         
+    },[]);
 
     useEffect(() => {
         if (!map.current) return;
@@ -25,6 +43,6 @@ export default function App() {
 
     return (
 
-        <Box sx={{ width: '100vw', height: '100vh', padding:0 }} ref={mapContainer}  />
+        <Box sx={{ width: '100vw', height: '100vh', padding: 0 }} ref={mapContainer} />
     );
 }
