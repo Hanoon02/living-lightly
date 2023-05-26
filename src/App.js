@@ -1,4 +1,4 @@
-import BaseMap from "./Components/base.map";
+import BaseMap from "./Components/Map/base.map";
 function App() {
   return (
 
