@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { env_vars } from '../../Config/env';
 import { Box } from '@mui/material';
-import { INSET_MAP_ZOOM, MAP_CENTER, MAP_ZOOM } from '../../Constants/constants';
+import { INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_ZOOM } from '../../Constants/constants';
 import { getContentForChannel } from '../../Client/mvc.client';
 import { Marker, Map } from 'react-map-gl';
 
@@ -25,6 +25,7 @@ export default function BaseMap() {
                     latitude: MAP_CENTER.lat,
                     zoom: MAP_ZOOM
                 }}
+                maxBounds={MAP_BOUNDS}
                 style={{ width: '100vw', height: '100vh', zIndex: 0, opacity: 0.5 }}
                 mapStyle={env_vars.MAP_STYLE}
                 mapboxAccessToken={env_vars.ACCESS_TOKEN}
