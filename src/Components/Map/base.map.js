@@ -18,7 +18,7 @@ export default function BaseMap() {
 
 
     return (
-        <Box sx={{ backgroundImage: "url(/Assets/Images/map_overlay.png)", zIndex: 1 }}>
+        <Box sx={{ backgroundImage: "url(/Assets/Images/map_overlay.png)",  width: '100vw', height: '100vh', backgroundSize:"100vw 100vh", zIndex: 1 }}>
             <Map
                 initialViewState={{
                     longitude: MAP_CENTER.long,
@@ -26,11 +26,11 @@ export default function BaseMap() {
                     zoom: MAP_ZOOM
                 }}
                 maxBounds={MAP_BOUNDS}
-                style={{ width: '100vw', height: '100vh', zIndex: 0, opacity: 0.5 }}
+                style={{  zIndex: 0, opacity: 0.5 }}
                 mapStyle={env_vars.MAP_STYLE}
                 mapboxAccessToken={env_vars.ACCESS_TOKEN}
             >;
-                <Box sx={{ backgroundImage: "url(/Assets/Images/compass_north.png)", zIndex: 11, backgroundSize:"cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '25px', right: '25px' }} />
+                <Box sx={{ backgroundImage: "url(/Assets/Images/compass_north.png)", zIndex: 11, backgroundSize:"cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '50px', right: '50px' }} />
 
                 {markers && markers.length != 0 && markers.map(marker => {
                     return (
@@ -41,7 +41,7 @@ export default function BaseMap() {
                             {marker.thumbnail && <img src={marker.thumbnail} />}
                         </Marker>);
                 })}
-                <Box sx={{ backgroundImage: "url(/Assets/Images/inset_map_overlay.png)", zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '50px', right: '50px' }}>
+                <Box sx={{ backgroundImage: "url(/Assets/Images/inset_map_overlay.png)", zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '50px', right: '100px' }}>
                     <Map
                         initialViewState={{
                             longitude: MAP_CENTER.long,
