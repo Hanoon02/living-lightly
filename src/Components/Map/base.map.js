@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { env_vars } from '../../Config/env';
 import { Box } from '@mui/material';
-import { COMPASS_ASSET, INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_OVERLAY_ASSET, MAP_ZOOM, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT } from '../../Constants/constants';
+import { COMPASS_ASSET, INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_OVERLAY_ASSET, MAP_ZOOM, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT, ROUTE_ID, ROUTE_MARKER_IMG } from '../../Constants/constants';
 import { getContentForChannel } from '../../Client/mvc.client';
 import { Marker, Map, useMap, MapProvider } from 'react-map-gl';
 import { ZoomStepper } from './components.map';
@@ -12,8 +12,9 @@ export default function BaseMap() {
     const [markers, setMarkers] = useState([]);
 
     useEffect(() => {
-        getContentForChannel("9aitnqa").then(response => {
+        getContentForChannel(ROUTE_ID).then(response => {
             setMarkers(response.data);
+            // console.log(response.data)
         })
     }, [])
 
@@ -41,12 +42,14 @@ export default function BaseMap() {
 
                     {markers && markers.length != 0 && markers.map(marker => {
                         return (
-                            <Marker
-                                longitude={marker.long}
-                                latitude={marker.lat}>
-
-                                {marker.thumbnail && <img src={marker.thumbnail} />}
-                            </Marker>);
+                            <div>
+                                <Marker
+                                    longitude={marker.long}
+                                    latitude={marker.lat}>
+                                    {/*{marker.title}*/}
+                                    {marker.thumbnail && <img src={marker.thumbnail} />}
+                                </Marker>
+                            </div>);
                     })}
                     <Box sx={{ position: 'absolute', bottom: "50px", left: "50px", zIndex: 10 }}>
                         <ZoomStepper zoom={MAP_ZOOM} />

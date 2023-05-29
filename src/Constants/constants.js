@@ -13,3 +13,5 @@ export const ZOOM_OUT_LIMIT = 6
 //ASSET FILES
 export const MAP_OVERLAY_ASSET = "url(/Assets/Images/map_overlay.png)"
 export const COMPASS_ASSET = "url(/Assets/Images/compass_north.png)"
+export const ROUTE_ID = "5mxstg9"
+export const ROUTE_MARKER_IMG = "src/Assets/routePointer.png"
