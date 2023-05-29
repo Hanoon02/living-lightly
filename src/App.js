@@ -1,8 +1,10 @@
-import BaseMap from "./Components/Map/base.map";
+import MapPage from './Pages/MapPage';
+
 function App() {
   return (
-
-    <BaseMap></BaseMap>
+      <>
+          <MapPage></MapPage>
+      </>
   );
 }
 
