@@ -46,7 +46,7 @@ export function MapPopup({ marker, onClose }) {
         <Box sx={{ padding: 5, position: "absolute", bottom: "200px", right: "200px", backgroundSize: "400px 400px", backgroundImage: INSET_MAP_OVERLAY_ASSET, width: 400, height: 400, zIndex: 15, alignItems: "center" }}>
             <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
                 <p className='briem-font text-[22px] text-[#000]' >{marker.title}</p>
-                <Button sx={{color:"black"}}onClick={onClose}> 
+                <Button sx={{color:"black"}} onClick={onClose}> 
                     <Close></Close>
                 </Button>
             </Stack>
