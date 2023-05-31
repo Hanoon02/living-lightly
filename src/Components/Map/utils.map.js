@@ -1,4 +1,5 @@
 import json from '../../Constants/states_geojson.json'
+import { geoContains } from 'd3-geo'
 export function createLineGeoJson(route_markers) {
     return {
         'id': 'routes',
@@ -31,7 +32,7 @@ export function createLayer() {
         },
         'paint': {
             'line-color': '#000',
-            'line-width': 10
+            'line-width': 2
         }
     };
 
@@ -44,16 +45,21 @@ export function createStatePolygon(state) {
     }
 }
 
-export function createPolygonLayer(state) {
-
+export function createPolygonLayer() {
     return {
-        'id': state,
+        'id': "state",
         'type': 'fill',
-        'source': state, // reference the data source
+        'source': "state", // reference the data source
         'layout': {},
         'paint': {
             'fill-color': '#0080ff', // blue color fill
             'fill-opacity': 0.5
         }
     }
+}
+
+export function getStateJson(center) {
+    var obj = json.features.filter(elem => geoContains(elem,center))[0]
+    if(typeof(obj)!="undefined") obj["id"] = "state"
+    return obj
 }
