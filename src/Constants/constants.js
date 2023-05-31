@@ -15,4 +15,6 @@ export const MAP_OVERLAY_ASSET = "url(/Assets/Images/map_overlay.png)"
 export const INSET_MAP_OVERLAY_ASSET = "url(/Assets/Images/inset_map_overlay.png)"
 
 export const COMPASS_ASSET = "url(/Assets/Images/compass_north.png)"
+export const CHANNEL_ID = "vupxyazg"
+export const ROUTE_MARKER_IMG = "src/Assets/routePointer.png"
 export const ROUTE_MARKER_IMG = "Assets/Images/community_pointer.png"
