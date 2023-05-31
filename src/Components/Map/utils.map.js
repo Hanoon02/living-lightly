@@ -1,10 +1,11 @@
+import json from '../../Constants/states_geojson.json'
 export function createLineGeoJson(route_markers) {
     return {
         'id': 'routes',
         'type': 'Feature',
         'geometry': {
             'type': 'LineString',
-            'coordinates': route_markers.sort((marker1,marker2)=>
+            'coordinates': route_markers.sort((marker1, marker2) =>
                 marker1.lat - marker2.lat
             ).reduce((acc, marker) => {
                 acc.push([
@@ -34,4 +35,25 @@ export function createLayer() {
         }
     };
 
+}
+
+export function createStatePolygon(state) {
+    const stateJson = json.features.filter(elem => elem.properties.NAME_1 == state)[0]
+    return {
+        ...stateJson
+    }
+}
+
+export function createPolygonLayer(state) {
+
+    return {
+        'id': state,
+        'type': 'fill',
+        'source': state, // reference the data source
+        'layout': {},
+        'paint': {
+            'fill-color': '#0080ff', // blue color fill
+            'fill-opacity': 0.5
+        }
+    }
 }

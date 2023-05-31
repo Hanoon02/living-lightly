@@ -6,7 +6,8 @@ import { COMPASS_ASSET, INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_OVERLAY_ASSE
 import { getContentForChannel } from '../../Client/mvc.client';
 import { Marker, Map, MapProvider, Source, Layer } from 'react-map-gl';
 import { MapPopup, ZoomStepper } from './components.map';
-import { createLayer, createLineGeoJson } from './utils.map';
+import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon } from './utils.map';
+
 mapboxgl.accessToken = env_vars.ACCESS_TOKEN
 
 
@@ -16,6 +17,7 @@ export default function BaseMap() {
     const [showPopup, setShowPopup] = useState(null);
     const [scopedMarker, setScopedMarker] = useState({});
     const mapRef = useRef(null);
+    const [state, setState] = useState("")
     const [geojson, setGeoJson] = useState(null);
     useEffect(() => {
         getContentForChannel(env_vars.ROUTE_ID).then(response => {
@@ -106,6 +108,7 @@ export default function BaseMap() {
                         <Box sx={{ position: 'absolute', bottom: "100px", left: "50px", zIndex: 10 }}>
                             <p variant="h3" onClick={() => {
                                 if (markers && markers.length != 0) {
+                                    setState('Uttaranchal')
                                     panTo([markers[0].long, markers[0].lat], 8)
                                     setShowMarkers(true)
                                 }
@@ -123,7 +126,11 @@ export default function BaseMap() {
                                 style={{ width: '100%', height: '100%', zIndex: 2, opacity: 1 }}
                                 mapStyle={env_vars.MAP_STYLE}
                                 mapboxAccessToken={env_vars.ACCESS_TOKEN}
-                            />;
+                            >;
+                                <Source id="Goa" type="geojson" data={createStatePolygon(state)} > 
+                                    <Layer {...createPolygonLayer(state)}/>
+                                </Source>
+                            </Map>
                         </Box>
                     </Source>
 
