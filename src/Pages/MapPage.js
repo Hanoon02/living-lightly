@@ -7,10 +7,11 @@ import { COMPASS_ASSET, INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_OVERLAY_ASSE
 import { getSubChannel, getChannel, getContentForChannel } from '../Client/mvc.client';
 import { Marker, Map, useMap, MapProvider, Popup } from 'react-map-gl';
 import { ZoomStepper } from '../Components/Map/components.map';
-
+import Menu from '../Components/Menu/menu';
 
 export default function MapPage() {
     const [showCommunity, setShowCommunity] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const [showRoutes, setShowRoutes] = useState(false);
     const [showRouteMarkers, setShowRouteMarkers] = useState(false);
     const [allCommunity, setAllCommunity] = useState([]);
@@ -99,7 +100,10 @@ export default function MapPage() {
                     mapboxAccessToken={env_vars.ACCESS_TOKEN}
                 >;
                     <Box sx={{ position: 'absolute', top: "50px", left: "80px", zIndex: 10 }}>
-                        <MenuIcon/>
+                        <div>
+                            <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
+                            {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
+                        </div>
                     </Box>
                     <Box sx={{ backgroundImage: COMPASS_ASSET, zIndex: 11, backgroundSize: "cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '50px', right: '50px' }} />
                     {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 && routeStartMarkers.map(marker => {
@@ -130,30 +134,18 @@ export default function MapPage() {
                                     latitude={marker.lat}>
                                     <img src={require("../../src/Assets/routePointer.png")} alt={marker.uniqueID}/>
                                 </Marker>
-                                {/*{showPopup && (*/}
-                                {/*    <Popup longitude={marker.long} latitude={marker.lat}*/}
-                                {/*           anchor="bottom"*/}
-                                {/*    onClose={() => setShowPopup(false)}>*/}
-                                {/*        RandomInfo*/}
-                                {/*</Popup>)}*/}
-                                {/*<Box sx={{ position: 'relative', zIndex: 10 }}>*/}
-                                {/*    {marker.title}*/}
-                                {/*</Box>*/}
                             </div>);
                     })}
                     <Box sx={{ position: 'absolute', bottom: "50px", left: "50px", zIndex: 10 }}>
                         <ZoomStepper zoom={MAP_ZOOM} />
                     </Box>
-                    {allCommunity && allCommunity.length != 0 && allCommunity.map(community => {
-                        return (
-                            <Box sx={{ position: 'absolute', bottom: "100px", left: "50px", zIndex: 10 }}>
-                                <p onClick={() => {handleCommunity(community)}} className={'text-[30px] text-[#356693] cursor-pointer'}> {community.name} </p>
-                            </Box>
-                        );
-                    })}
-                    {/*<Box sx={{ position: 'absolute', bottom: "100px", left: "50px", zIndex: 10 }}>*/}
-                    {/*    <p onClick={()=>{handleShowRoutes()}} className={'text-[30px] text-[#356693] cursor-pointer'}> Van Gujjars of Uttarakhand </p>*/}
-                    {/*</Box>*/}
+                    {/*{allCommunity && allCommunity.length != 0 && allCommunity.map(community => {*/}
+                    {/*    return (*/}
+                    {/*        <Box sx={{ position: 'absolute', bottom: "100px", left: "50px", zIndex: 10 }}>*/}
+                    {/*            <p onClick={() => {handleCommunity(community)}} className={'text-[30px] text-[#356693] cursor-pointer'}> {community.name} </p>*/}
+                    {/*        </Box>*/}
+                    {/*    );*/}
+                    {/*})}*/}
                     <Box sx={{ backgroundImage: MAP_OVERLAY_ASSET, zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '50px', right: '100px' }}>
                         <Map
                             initialViewState={{
