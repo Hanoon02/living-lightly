@@ -114,7 +114,7 @@ export default function MapPage() {
                                     longitude={marker.long}
                                     latitude={marker.lat}
                                     onClick={()=>{addRouteMarkers(marker.uniqueID); setShowRouteMarkers(!showRouteMarkers)}}>
-                                    <img src={require("../Assets/communityPointer.png")} alt={marker.uniqueID}/>
+                                    <img src={require(ROUTE_IMG)} alt={marker.uniqueID}/>
                                 </Marker>
                             </div>);
                     })}
