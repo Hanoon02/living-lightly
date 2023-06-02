@@ -1,5 +1,5 @@
 import MapPage from './Pages/MapPage';
-
+import './App.css'
 function App() {
   return (
       <>

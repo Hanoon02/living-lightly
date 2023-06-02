@@ -1,15 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT } from '../../Constants/constants';
-import { ButtonGroup, Button } from '@mui/material';
-import { Add, Remove } from '@mui/icons-material';
+import React, { useEffect, useState } from 'react';
+import { INSET_MAP_OVERLAY_ASSET, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT } from '../../Constants/constants';
+import { ButtonGroup, Button, Box, Typography, Divider, Stack} from '@mui/material';
+import { Add, Remove, Close } from '@mui/icons-material';
 import { useMap } from 'react-map-gl';
 export function ZoomStepper({ zoom }) {
-
     const { current: map } = useMap();
-
     const [zoomLevel, setZoomLevel] = useState(zoom)
-
-
     useEffect(() => {
         map.zoomTo(zoomLevel)
     }, [zoomLevel])
@@ -43,3 +39,23 @@ export function ZoomStepper({ zoom }) {
     )
 
 }
+
+export function MapPopup({ marker, onClose }) {
+    return (
+
+        <Box sx={{ padding: 5, position: "absolute", bottom: "200px", right: "200px", backgroundSize: "400px 400px", backgroundImage: INSET_MAP_OVERLAY_ASSET, width: 400, height: 400, zIndex: 15, alignItems: "center" }}>
+            <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
+                <p className='briem-font text-[22px] text-[#000]' >{marker.title}</p>
+                <Button sx={{color:"black"}} onClick={onClose}> 
+                    <Close></Close>
+                </Button>
+            </Stack>
+
+
+            <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>
+            <Divider></Divider>
+            <Typography variant="subtitle2">Lorem ipsum dolor sit amet</Typography>
+        </Box>
+    )
+}
+

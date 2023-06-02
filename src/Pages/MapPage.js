@@ -1,31 +1,85 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { env_vars } from '../Config/env';
 import { Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { COMPASS_ASSET, INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_OVERLAY_ASSET, MAP_ZOOM, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT, ROUTE_ID, ROUTE_MARKER_IMG } from '../Constants/constants';
-import { getContentForChannel } from '../Client/mvc.client';
+import { COMPASS_ASSET, INSET_MAP_ZOOM, MAP_BOUNDS, MAP_CENTER, MAP_OVERLAY_ASSET, MAP_ZOOM, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT, CHANNEL_ID, ROUTE_MARKER_IMG, ROUTE_IMG } from '../Constants/constants';
+import { getSubChannel, getChannel, getContentForChannel } from '../Client/mvc.client';
 import { Marker, Map, useMap, MapProvider, Popup } from 'react-map-gl';
 import { ZoomStepper } from '../Components/Map/components.map';
-mapboxgl.accessToken = env_vars.ACCESS_TOKEN
+import Menu from '../Components/Menu/menu';
 
 export default function MapPage() {
     const [showCommunity, setShowCommunity] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const [showRoutes, setShowRoutes] = useState(false);
-    const [markers, setMarkers] = useState([]);
+    const [showRouteMarkers, setShowRouteMarkers] = useState(false);
+    const [allCommunity, setAllCommunity] = useState([]);
+    const [allRoutes, setAllRoutes] = useState([]);
+    const [routeStartMarkers, setRouteStartMarkers] = useState([]);
+    const [routeMarkers, setRouteMarkers] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
 
-    const handleShowRoutes = () => {
-        if(showRoutes){
-            setMarkers([]);
+    useEffect(() => {
+        getAllCommunities();
+    }, [])
+
+    const getAllCommunities = () => {
+        var communities = [];
+        getSubChannel(CHANNEL_ID).then(response => {
+            var data = response.data;
+            data.forEach(element => {
+                // console.log(element);
+                communities.push(element);
+            });
+            setAllCommunity(communities);
+        })
+        // console.log("All Communities", communities);
+    }
+
+    const getAllRoutes = (communityID) => {
+        var routes = [];
+        getSubChannel(communityID).then(response => {
+            var data = response.data;
+            data.forEach(element => {
+                // console.log(element);
+                routes.push(element);
+            });
+            setAllRoutes(routes);
+        })
+        // console.log("All Routes", routes);
+    }
+
+    const showStartMarkers = () =>{
+        var markers = [];
+        allRoutes.forEach(element => {
+            markers.push(element);
+        });
+        setRouteStartMarkers(markers);
+        // console.log("Start markers", markers);
+    }
+
+    const addRouteMarkers = (routeID)=>{
+        var markers = [];
+        getContentForChannel(routeID).then(response => {
+            var data = response.data;
+            data.forEach(element => {
+                // console.log(element);
+                markers.push(element);
+            });
+            setRouteMarkers(markers);
+        })
+        // console.log("Route markers", markers);
+    }
+
+    const handleCommunity = (community) => {
+        if(showRoutes) {
+            setShowRoutes(false);
+            setShowRouteMarkers(false);
         }
-        else{
-            getContentForChannel(ROUTE_ID).then(response => {
-                setMarkers(response.data);
-                console.log(response.data);
-            })
-        }
-        setShowRoutes(!showRoutes);
+        else setShowRoutes(true);
+        getAllRoutes(community.uniqueID);
+        showStartMarkers();
     }
 
     return (
@@ -47,34 +101,35 @@ export default function MapPage() {
                     mapboxAccessToken={env_vars.ACCESS_TOKEN}
                 >;
                     <Box sx={{ position: 'absolute', top: "50px", left: "80px", zIndex: 10 }}>
-                        <MenuIcon/>
+                        <div>
+                            <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
+                            {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
+                        </div>
                     </Box>
                     <Box sx={{ backgroundImage: COMPASS_ASSET, zIndex: 11, backgroundSize: "cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '50px', right: '50px' }} />
-                    {showRoutes && markers && markers.length != 0 && markers.map(marker => {
+                    {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 && routeStartMarkers.map(marker => {
                         return (
                             <div className={'flex'}>
                                 <Marker
                                     longitude={marker.long}
                                     latitude={marker.lat}
-                                    onClick={()=>{setShowPopup(true)}}>
-                                    {marker.thumbnail && <img src={marker.thumbnail} />}
+                                    onClick={()=>{addRouteMarkers(marker.uniqueID); setShowRouteMarkers(!showRouteMarkers)}}>
+                                    <img src={require(ROUTE_IMG)} alt={marker.uniqueID}/>
                                 </Marker>
-                                {showPopup && (
-                                    <Popup longitude={marker.long} latitude={marker.lat}
-                                           anchor="bottom"
-                                    onClose={() => setShowPopup(false)}>
-                                        RandomInfo
-                                </Popup>)}
-                                {/*<Box sx={{ position: 'relative', zIndex: 10 }}>*/}
-                                {/*    {marker.title}*/}
-                                {/*</Box>*/}
+                            </div>);
+                    })}
+                    {showRouteMarkers && routeMarkers && routeMarkers.length != 0 && routeMarkers.map(marker => {
+                        return (
+                            <div className={'flex'}>
+                                <Marker
+                                    longitude={marker.long}
+                                    latitude={marker.lat}>
+                                    <img src={require(ROUTE_MARKER_IMG)} alt={marker.uniqueID}/>
+                                </Marker>
                             </div>);
                     })}
                     <Box sx={{ position: 'absolute', bottom: "50px", left: "50px", zIndex: 10 }}>
                         <ZoomStepper zoom={MAP_ZOOM} />
-                    </Box>
-                    <Box sx={{ position: 'absolute', bottom: "100px", left: "50px", zIndex: 10 }}>
-                        <p onClick={()=>{handleShowRoutes()}} className={'text-[30px] text-[#356693] cursor-pointer'}> Van Gujjars of Uttarakhand </p>
                     </Box>
                     <Box sx={{ backgroundImage: MAP_OVERLAY_ASSET, zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '50px', right: '100px' }}>
                         <Map

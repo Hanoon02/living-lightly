@@ -1,7 +1,8 @@
 const BASE_MVC_URL = "https://mvcdev.represent.org/strapi/api"
 const ENDPOINTS = {
     "channelContent":"getContentForChannel",
-    "channelInfo":"getChannel"
+    "channelInfo":"getChannel",
+    "subChannels": "getChildChannels"
 }
 
 export const getEndpoint = (endpoint, channelId) => {
