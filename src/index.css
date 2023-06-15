@@ -7,3 +7,9 @@
     src: local("BriemScript"),
      url("./Fonts/BriemScript.otf") format("truetype");
    }
+
+@font-face {
+    font-family: "Gotu";
+    src: local("Gotu"),
+     url("./Fonts/Gotu.ttf") format("truetype");
+   }

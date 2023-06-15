@@ -59,3 +59,20 @@ export function MapPopup({ marker, onClose }) {
     )
 }
 
+export function NextArrow() {
+    return(
+        <div>
+            <p className={'text-[500px]'}>-?</p>
+            <img src={'./arrow.png'} className={'w-10 h-10'}/>
+        </div>
+    )
+}
+export function PrevArrow() {
+    return(
+        <div>
+            <p className={'text-[500px]'}> ?- </p>
+            <img src={'./arrow.png'} className={'w-10 h-10'}/>
+        </div>
+    )
+}
+

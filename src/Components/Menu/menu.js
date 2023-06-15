@@ -36,11 +36,14 @@ export default function Menu({communities, selectCommunity}) {
                             })}
                         </div>}
                     {showThemes &&
-                        <div className={'px-5'}>
-                            <p>Relations with villagers</p>
-                            <p>Relations with state</p>
-                            <p>Relations with communities</p>
-                            <p>Relations with ration shop owners</p>
+                        <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg'}>
+                            <p className={'py-2'}>Relations with villagers</p>
+                            <hr className={'border border-3 border-white'}/>
+                            <p className={'py-2'}>Relations with state</p>
+                            <hr className={'border border-3 border-white'}/>
+                            <p className={'py-2'}>Relations with communities</p>
+                            <hr className={'border border-3 border-white'}/>
+                            <p className={'py-2'}>Relations with ration shop owners</p>
                         </div>}
                 </div>
             </div>
