@@ -166,8 +166,8 @@ export default function BaseMap() {
                             <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
                             {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
                         </div>
-                        {/*<PrevArrow/>*/}
-                        {/*<NextArrow/>*/}
+                        {/* <PrevArrow/> */}
+                        {/* <NextArrow/> */}
 
                     </Box>
                     {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 && routeStartMarkers.map(marker => {

@@ -1,25 +1,25 @@
-import React, {useState} from "react";
-import {ArrowForward as ArrowIcon} from "@mui/icons-material";
+import React, { useState } from "react";
+import { ArrowForward as ArrowIcon } from "@mui/icons-material";
 
-export default function Menu({communities, selectCommunity}) {
+export default function Menu({ communities, selectCommunity }) {
     const [showCommunities, setShowCommunities] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
 
-    function returnTitle(community){
+    function returnTitle(community) {
         var title = community.split("-").join(" ");
         return title;
     }
 
-    return(
+    return (
         <>
             <div className={'flex text-[20px] pt-3'}>
                 <div className={'px-5 bg-[#F8F3E3] rounded-xl shadow-lg'}>
-                    <button onClick={()=>{setShowCommunities(!showCommunities); setShowThemes(false)}}>
+                    <button onClick={() => { setShowCommunities(!showCommunities); setShowThemes(false) }}>
                         <div className={'flex py-3'}><p className={'px-1'}>Communities </p>
-                        <ArrowIcon /></div>
+                            <ArrowIcon /></div>
                     </button>
-                    <hr className={'border border-3 border-white'}/>
-                    <button onClick={()=>{setShowThemes(!showThemes); setShowCommunities(false)}}>
+                    <hr className={'border border-3 border-white'} />
+                    <button onClick={() => { setShowThemes(!showThemes); setShowCommunities(false) }}>
                         <div className={'flex py-3'}><p className={'px-1'}>Themes </p>
                             <ArrowIcon /></div>
                     </button>
@@ -28,9 +28,9 @@ export default function Menu({communities, selectCommunity}) {
                     {showCommunities &&
                         <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg'}>
                             {communities.map((community, index) => {
-                                return(
-                                    <button key={index} onClick={()=>{selectCommunity(community)}}>
-                                        <p>{returnTitle(community.name)}</p>
+                                return (
+                                    <button key={index} onClick={() => { selectCommunity(community) }}>
+                                        <p style={{"text-transform": "capitalize"}}>{returnTitle(community.name)}</p>
                                     </button>
                                 )
                             })}
@@ -38,11 +38,11 @@ export default function Menu({communities, selectCommunity}) {
                     {showThemes &&
                         <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg'}>
                             <p className={'py-2'}>Relations with villagers</p>
-                            <hr className={'border border-3 border-white'}/>
+                            <hr className={'border border-3 border-white'} />
                             <p className={'py-2'}>Relations with state</p>
-                            <hr className={'border border-3 border-white'}/>
+                            <hr className={'border border-3 border-white'} />
                             <p className={'py-2'}>Relations with communities</p>
-                            <hr className={'border border-3 border-white'}/>
+                            <hr className={'border border-3 border-white'} />
                             <p className={'py-2'}>Relations with ration shop owners</p>
                         </div>}
                 </div>
