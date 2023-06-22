@@ -12,13 +12,13 @@ export default function Menu({ communities, selectCommunity }) {
 
     return (
         <>
-            <div className={'flex text-[20px] pt-3'}>
-                <div className={'px-5 bg-[#F8F3E3] rounded-xl shadow-lg'}>
+            <div className={'flex text-[20px] pt-3 briem-font'}>
+                <div className={'px-5 bg-[#F8F3E3] rounded-xl shadow-lg briem-font'}>
                     <button onClick={() => { setShowCommunities(!showCommunities); setShowThemes(false) }}>
                         <div className={'flex py-3'}><p className={'px-1'}>Communities </p>
                             <ArrowIcon /></div>
                     </button>
-                    <hr className={'border border-3 border-white'} />
+                    <hr className={'border border-3 border-white briem-font'} />
                     <button onClick={() => { setShowThemes(!showThemes); setShowCommunities(false) }}>
                         <div className={'flex py-3'}><p className={'px-1'}>Themes </p>
                             <ArrowIcon /></div>
@@ -26,7 +26,7 @@ export default function Menu({ communities, selectCommunity }) {
                 </div>
                 <div className={'mx-3'}>
                     {showCommunities &&
-                        <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg'}>
+                        <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg briem-font'}>
                             {communities.map((community, index) => {
                                 return (
                                     <button key={index} onClick={() => { selectCommunity(community) }}>
@@ -36,13 +36,13 @@ export default function Menu({ communities, selectCommunity }) {
                             })}
                         </div>}
                     {showThemes &&
-                        <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg'}>
+                        <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg briem-font'}>
                             <p className={'py-2'}>Relations with villagers</p>
-                            <hr className={'border border-3 border-white'} />
+                            <hr className={'border border-3 border-white briem-font'} />
                             <p className={'py-2'}>Relations with state</p>
-                            <hr className={'border border-3 border-white'} />
+                            <hr className={'border border-3 border-white briem-font'} />
                             <p className={'py-2'}>Relations with communities</p>
-                            <hr className={'border border-3 border-white'} />
+                            <hr className={'border border-3 border-white briem-font'} />
                             <p className={'py-2'}>Relations with ration shop owners</p>
                         </div>}
                 </div>
