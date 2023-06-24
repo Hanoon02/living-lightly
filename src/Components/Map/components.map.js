@@ -59,3 +59,29 @@ export function MapPopup({ marker, onClose }) {
     )
 }
 
+export function CommunityPopup({ marker}) {
+    return (
+
+        <Box sx={{ padding: 5, backgroundSize: "400px 400px", backgroundImage: INSET_MAP_OVERLAY_ASSET, width: 400, height: 400, zIndex: 15, alignItems: "center" }}>
+            <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
+                <p className='briem-font text-[16px] text-[#000]' >{marker.name}</p>
+            </Stack>
+        </Box>
+    )
+}
+
+export function NextArrow() {
+    return(
+        <div className={"rounded-xl cursor-pointer bg-cover w-[35px] h-[35px] bg-[url('../public/Assets/Images/arrowTexture.png')] flex justify-center items-center"}>
+            <img className={'mt-1'} src={require("../../Assets/Map/arrowNext.png")} alt={'next'}/>
+        </div>
+    )
+}
+export function PrevArrow() {
+    return(
+        <div className={"rounded-xl cursor-pointer bg-cover w-[35px] bg-[url('../public/Assets/Images/arrowTexture.png')] h-[35px] flex justify-center items-center"}>
+            <img className={'mt-1'} src={require("../../Assets/Map/arrowPrev.png")} alt={'prev'}/>
+        </div>
+    )
+}
+

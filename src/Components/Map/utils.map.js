@@ -1,23 +1,19 @@
 import json from '../../Constants/states_geojson.json'
 import { geoContains } from 'd3-geo'
+import bezierSpline from '@turf/bezier-spline';
+import {lineString } from "@turf/helpers";
+
 export function createLineGeoJson(route_markers) {
+    const geometry = bezierSpline(
+        lineString(
+            route_markers.map(marker => [marker.long, marker.lat]
+            )
+        )
+    );
     return {
         'id': 'routes',
         'type': 'Feature',
-        'geometry': {
-            'type': 'LineString',
-            'coordinates': route_markers.sort((marker1, marker2) =>
-                marker1.lat - marker2.lat
-            ).reduce((acc, marker) => {
-                acc.push([
-                    marker.long,
-                    marker.lat
-                ]);
-                return acc;
-            }, [])
-        }
-
-
+        ...geometry
     };
 }
 
@@ -31,7 +27,7 @@ export function createLayer() {
             'line-cap': 'round'
         },
         'paint': {
-            'line-color': '#000',
+            'line-color': '#4F311C',
             'line-width': 2
         }
     };
@@ -59,7 +55,7 @@ export function createPolygonLayer() {
 }
 
 export function getStateJson(center) {
-    var obj = json.features.filter(elem => geoContains(elem,center))[0]
-    if(typeof(obj)!="undefined") obj["id"] = "state"
+    var obj = json.features.filter(elem => geoContains(elem, center))[0]
+    if (typeof (obj) != "undefined") obj["id"] = "state"
     return obj
 }

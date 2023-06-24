@@ -1,9 +1,16 @@
-import MapPage from './Pages/MapPage';
+import BaseMap from "./Components/Map/base.map";
+import About from './Pages/About/About';
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import './App.css'
 function App() {
   return (
       <>
-          <MapPage></MapPage>
+          <BrowserRouter>
+              <Routes>
+                  <Route path={'/'} element={<About/>}/>
+                  <Route path={'/base'} element={<BaseMap/>}/>
+              </Routes>
+          </BrowserRouter>
       </>
   );
 }
