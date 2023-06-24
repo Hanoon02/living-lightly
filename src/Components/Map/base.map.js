@@ -11,11 +11,11 @@ import {
     MAP_ZOOM,
     ZOOM_IN_LIMIT,
     ZOOM_OUT_LIMIT,
-    ROUTE_MARKER_IMG,
+    ROUTE_START_IMG,
 } from '../../Constants/constants';
 import {getContentForChannel, getSubChannel} from '../../Client/mvc.client';
 import { Marker, Map, MapProvider, Source, Layer } from 'react-map-gl';
-import { MapPopup, ZoomStepper, NextArrow, PrevArrow } from './components.map';
+import { MapPopup, ZoomStepper, NextArrow, PrevArrow, CommunityPopup } from './components.map';
 import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
@@ -41,6 +41,7 @@ export default function BaseMap() {
     const [routeMarkers, setRouteMarkers] = useState([]);
     const [showRoutes, setShowRoutes] = useState(false);
     const [showRouteMarkers, setShowRouteMarkers] = useState(false);
+    const [showCommunityInfo, setShowCommunityInfo] = useState(false);
 
     useEffect(() => {
         getAllCommunities();
@@ -119,8 +120,16 @@ export default function BaseMap() {
         updateState([MAP_CENTER.long, MAP_CENTER.lat])
     }, [])
 
-
-
+    const exit = () => {
+        if(showRouteMarkers){
+            setShowRouteMarkers(false);
+        }
+        else {
+            if (showRoutes) setShowRouteMarkers(false);
+            setShowRoutes(!showRoutes);
+            panTo([79.250, 30.006], 8);
+        }
+    }
 
     const panTo = (coords, zoom) => {
         if (mapRef.current) {
@@ -166,34 +175,39 @@ export default function BaseMap() {
                             <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
                             {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
                         </div>
-                        {/* <PrevArrow/> */}
-                        {/* <NextArrow/> */}
-
                     </Box>
-                    {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 && routeStartMarkers.map(marker => {
-                        return (
-                            <div className={'flex'}>
-                                <Marker
-                                    longitude={marker.long}
-                                    latitude={marker.lat}
-                                    onClick={()=>{
-                                        if(!showRouteMarkers) panTo([marker.long, marker.lat], 8);
-                                        setShowMarkers(true); addRouteMarkers(marker.uniqueID);
-                                        setShowRouteMarkers(!showRouteMarkers)}}
-                                    >
-                                    <img src={require("./Assets(temp)/routeStart.png")} alt={marker.uniqueID} style={{ height: "40px" }}/>
-                                </Marker>
-                            </div>);
-                    })}
-                    {showRouteMarkers && routeMarkers && routeMarkers.length != 0 && routeMarkers.map(marker => {
-                        return (
-                            <div className={'flex'}>
-                                <Marker
-                                    longitude={marker.long}
-                                    latitude={marker.lat}>
-                                    <img src={require("./Assets(temp)/routePointer.png")} alt={marker.uniqueID}/>
-                                </Marker>
-                            </div>);
+                    {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 &&
+                        routeStartMarkers.map(marker => {
+                            return (
+                                <div className={"flex "}>
+                                    <Marker
+                                        longitude={marker.long}
+                                        latitude={marker.lat}
+                                        onClick={()=>{
+                                            if(!showRouteMarkers) panTo([marker.long, marker.lat], 8);
+                                            setShowMarkers(true); addRouteMarkers(marker.uniqueID);
+                                            setShowRouteMarkers(!showRouteMarkers)}}
+                                        >
+                                        <div className={''}>
+                                            <div className={'cursor-pointer'}>
+                                                <img
+                                                    // onMouseEnter={() => {setShowCommunityInfo(true);}}
+                                                    // onMouseLeave={() => { setShowCommunityInfo(false);}}
+                                                    src={require("../../Assets/Map/routeStart.png")} alt={marker.uniqueID} style={{ height: "40px" }}/>
+                                            </div>
+                                            <div className={''}>
+                                                {showCommunityInfo &&
+                                                    <Marker
+                                                        longitude={marker.long}
+                                                        latitude={marker.lat}
+                                                    >
+                                                        <CommunityPopup marker={marker} />
+                                                    </Marker>
+                                                }
+                                            </div>
+                                        </div>
+                                    </Marker>
+                                </div>);
                     })}
                     <Source id="routes" type="geojson" data={geojson}>
                         {showRouteMarkers && <Layer {...createLayer()}></Layer>}
@@ -211,24 +225,48 @@ export default function BaseMap() {
                                         }
                                         }
                                     >
-                                        {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ? <img src={require("./Assets(temp)/routePointer.png")} style={{ height: "40px" }}></img> : <img src={require("./Assets(temp)/routePointer.png")} style={{ height: "32px" }}></img>}
+                                        {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
+                                            <div className={'flex flex-col justify-center'} >
+                                                <img src={require("../../Assets/Map/routePointer.png")} className={'mx-auto w-[30px] h-[40px]'}/>
+                                                <p className={'briem-font text-[#894E35] text-[18px]'}>{marker.title}</p>
+                                            </div> :
+                                            <div className={'flex flex-col justify-center'}>
+                                                <img src={require("../../Assets/Map/routePointer.png")} className={'mx-auto w-[20px] h-[30px]'}/>
+                                                <p className={'hover:underline-offset-2 hover:underline briem-font text-[#894E35] text-[14px]'}>{marker.title}</p>
+                                            </div>
+                                        }
                                     </Marker>
                                 </div>);
                         })}
-                        {showPopup && <MapPopup marker={scopedMarker} onClose={() => { setShowPopup(false) }} />}
-                        <Box sx={{ position: 'absolute', bottom: "50px", left: "50px", zIndex: 10 }}>
+                        {showPopup &&
+                            <MapPopup marker={scopedMarker} onClose={() => { setShowPopup(false) }}
+                        />}
+                        <Box sx={{ position: 'absolute', bottom: "100px", right: "90px", zIndex: 10 }}>
                             <ZoomStepper zoom={MAP_ZOOM} />
                         </Box>
-                        {/*<Box sx={{ position: 'absolute', bottom: "100px", left: "50px", zIndex: 10 }}>*/}
-                        {/*    <p variant="h3" onClick={() => {*/}
-                        {/*        if (markers && markers.length != 0) {*/}
-                        {/*            panTo([markers[0].long, markers[0].lat], 8)*/}
-                        {/*            setShowMarkers(true)*/}
-                        {/*        }*/}
-
-                        {/*    }} className={'ml-5 mb-5 text-[30px] text-[#000] cursor-pointer briem-font'}> Van Gujjars of Uttarakhand </p>*/}
-                        {/*</Box>*/}
-                        <Box sx={{ backgroundImage: MAP_OVERLAY_ASSET, zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '50px', right: '100px' }}>
+                        {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 &&
+                            <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
+                                <div onClick={()=>exit()}><PrevArrow/></div>
+                            </Box>
+                        }
+                        {showRouteMarkers && routeMarkers && routeMarkers.length != 0 &&
+                            <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
+                                <NextArrow />
+                            </Box>
+                        }
+                        <Box>
+                            <Marker
+                                longitude={79.250}
+                                latitude={30.006}>
+                                <p onClick={() => {
+                                    panTo([79.250, 30.006], 8);
+                                    setShowMarkers(true);
+                                    handleCommunity(allCommunity[0]);
+                                }}
+                               className={'ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> Van Gujjars of Uttarakhand </p>
+                            </Marker>
+                        </Box>
+                        <Box sx={{ backgroundImage: MAP_OVERLAY_ASSET, zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '150px', right: '100px' }}>
                             <Map
                                 initialViewState={{
                                     longitude: MAP_CENTER.long,

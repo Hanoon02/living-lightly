@@ -13,16 +13,17 @@ export default function Menu({ communities, selectCommunity }) {
     return (
         <>
             <div className={'flex text-[20px] pt-3 briem-font'}>
-                <div className={'px-5 bg-[#F8F3E3] rounded-xl shadow-lg briem-font'}>
-                    <button onClick={() => { setShowCommunities(!showCommunities); setShowThemes(false) }}>
+                <div className={'divide-y-2 divide-black divide-dashed px-5 bg-[#F8F3E3] rounded-xl shadow-lg briem-font'}>
+                    <div><button onClick={() => { setShowCommunities(!showCommunities); setShowThemes(false) }}>
                         <div className={'flex py-3'}><p className={'px-1'}>Communities </p>
                             <ArrowIcon /></div>
                     </button>
-                    <hr className={'border border-3 border-white briem-font'} />
-                    <button onClick={() => { setShowThemes(!showThemes); setShowCommunities(false) }}>
+                    </div>
+                    <div><button onClick={() => { setShowThemes(!showThemes); setShowCommunities(false) }}>
                         <div className={'flex py-3'}><p className={'px-1'}>Themes </p>
                             <ArrowIcon /></div>
                     </button>
+                    </div>
                 </div>
                 <div className={'mx-3'}>
                     {showCommunities &&

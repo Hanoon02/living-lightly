@@ -10,12 +10,12 @@ export default function About() {
                         <div className={'grid content-start order border-3 border-black flex  flex-col w-1/2 align-center justify-center'}>
                             <div className={'flex h-[800px]'}>
                                 <div className={'grid content-end w-1/3border border-3 border-black'}>
-                                    <img src={require("./Assets(temp)/shop.png")} alt={'shop'} className={''} />
+                                    <img src={require("../../Assets/About/shop.png")} alt={'shop'} className={''} />
                                 </div>
                                 <div className={'grid brder border-3 order-black content-start w-2/3 z-50 brder border-3 border-black flex '}>
                                     <p className={'text-[39px] text-center text-[#894E35]'}>About Us</p>
                                     <div>
-                                        <div className={''}><img src={require("./Assets(temp)/brown.png")} alt={'patch'} className={'absolute -z-20'} /></div>
+                                        <div className={''}><img src={require("../../Assets/About/brown.png")} alt={'patch'} className={'absolute -z-20'} /></div>
                                         <p className={'text-[20px] pl-10 pt-10'}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
                                     </div>
                                 </div>
@@ -38,20 +38,20 @@ export default function About() {
                                     </p>
                                 </div>
                                 <div className={'absolute boder border-3 border-black '}>
-                                    <img src={require("./Assets(temp)/patch.png")} alt={'patch'} />
+                                    <img src={require("../../Assets/About/patch.png")} alt={'patch'} />
                                 </div>
-                                <img src={require("./Assets(temp)/route.png")} alt={'tree'} className={''} />
+                                <img src={require("../../Assets/About/route.png")} alt={'tree'} className={''} />
                             </div>
                             <div>
                                 <div className={'flex pt-5 pl-5'}>
-                                    <img src={require("./Assets(temp)/forest.png")} alt={'tree'} className={''} />
+                                    <img src={require("../../Assets/About/forest.png")} alt={'tree'} className={''} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <img src={require("./Assets(temp)/map_overlay.png")} alt={'map'} className={'w-screen'} />
+            <img src={require("../../Assets/About/map_overlay.png")} alt={'map'} className={'w-screen'} />
         </>
     );
 }
