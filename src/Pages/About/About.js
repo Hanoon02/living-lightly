@@ -8,7 +8,7 @@ export default function About() {
             <div className={"bg-[#D0BA89] bg-[url('../public/Assets/Images/map_overlay.png')] bg-contain bg-no-repeat bg-center gotu-font w-full"}>
                 <div className={'px-[50px] py-[50px]'}>
                     <div className={"bg-center bg-cover bg-[url('../public/Assets/Images/inset_map_overlay.png')] flex align-top justify-evenly"}>
-                        <div className={'grid content-start order border-3 border-black flex  flex-col w-1/2 align-center justify-center'}>
+                        <div className={'pt-[10px] grid content-start order border-3 border-black flex  flex-col w-1/2 align-center justify-center'}>
                             <div className={'flex h-[800px]'}>
                                 <div className={'grid content-end w-1/3border border-3 border-black'}>
                                     <img src={ABOUT_SHOP_IMG} alt={'shop'} className={''} />
@@ -21,7 +21,7 @@ export default function About() {
                                 </div>
                             </div>
                         </div>
-                        <div className={'w-1/2 flex flex-col align-center justify-center cursor-pointer'}>
+                        <div className={'pt-[10px] w-1/2 flex flex-col align-center justify-center cursor-pointer'}>
                             <button className={'rounded-full px-[100px] mx-auto py-2 text-[24px] bg-[#D0BA89]'}>
                                 <Link to={'/base'}>Explore</Link>
                             </button>
