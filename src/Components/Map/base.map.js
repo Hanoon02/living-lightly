@@ -12,6 +12,8 @@ import {
     ZOOM_IN_LIMIT,
     ZOOM_OUT_LIMIT,
     ROUTE_START_IMG,
+    ROUTE_POINTER_IMG,
+
 } from '../../Constants/constants';
 import {getContentForChannel, getSubChannel} from '../../Client/mvc.client';
 import { Marker, Map, MapProvider, Source, Layer } from 'react-map-gl';
@@ -193,7 +195,7 @@ export default function BaseMap() {
                                                 <img
                                                     // onMouseEnter={() => {setShowCommunityInfo(true);}}
                                                     // onMouseLeave={() => { setShowCommunityInfo(false);}}
-                                                    src={require("../../Assets/Map/routeStart.png")} alt={marker.uniqueID} style={{ height: "40px" }}/>
+                                                    src={ROUTE_START_IMG} alt={marker.uniqueID} style={{ height: "40px" }}/>
                                             </div>
                                             <div className={''}>
                                                 {showCommunityInfo &&
@@ -227,11 +229,11 @@ export default function BaseMap() {
                                     >
                                         {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
                                             <div className={'flex flex-col justify-center'} >
-                                                <img src={require("../../Assets/Map/routePointer.png")} className={'mx-auto w-[30px] h-[40px]'}/>
+                                                <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[30px] h-[40px]'}/>
                                                 <p className={'briem-font text-[#894E35] text-[18px]'}>{marker.title}</p>
                                             </div> :
                                             <div className={'flex flex-col justify-center'}>
-                                                <img src={require("../../Assets/Map/routePointer.png")} className={'mx-auto w-[20px] h-[30px]'}/>
+                                                <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[20px] h-[30px]'}/>
                                                 <p className={'hover:underline-offset-2 hover:underline briem-font text-[#894E35] text-[14px]'}>{marker.title}</p>
                                             </div>
                                         }

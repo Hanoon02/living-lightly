@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { INSET_MAP_OVERLAY_ASSET, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT } from '../../Constants/constants';
+import { INSET_MAP_OVERLAY_ASSET, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT, ARROW_NEXT_IMG, ARROW_PREV_IMG,} from '../../Constants/constants';
 import { ButtonGroup, Button, Box, Typography, Divider, Stack} from '@mui/material';
 import { Add, Remove, Close } from '@mui/icons-material';
 import { useMap } from 'react-map-gl';
@@ -73,14 +73,14 @@ export function CommunityPopup({ marker}) {
 export function NextArrow() {
     return(
         <div className={"rounded-xl cursor-pointer bg-cover w-[35px] h-[35px] bg-[url('../public/Assets/Images/arrowTexture.png')] flex justify-center items-center"}>
-            <img className={'mt-1'} src={require("../../Assets/Map/arrowNext.png")} alt={'next'}/>
+            <img className={'mt-1'} src={ARROW_NEXT_IMG} alt={'next'}/>
         </div>
     )
 }
 export function PrevArrow() {
     return(
         <div className={"rounded-xl cursor-pointer bg-cover w-[35px] bg-[url('../public/Assets/Images/arrowTexture.png')] h-[35px] flex justify-center items-center"}>
-            <img className={'mt-1'} src={require("../../Assets/Map/arrowPrev.png")} alt={'prev'}/>
+            <img className={'mt-1'} src={ARROW_PREV_IMG} alt={'prev'}/>
         </div>
     )
 }
