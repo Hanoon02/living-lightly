@@ -95,6 +95,10 @@ export default function BaseMap() {
         if(routeStartMarkers.length!==0) setShowRoutes(!showRoutes);
         await getAllRoutes(community.uniqueID);
         showStartMarkers();
+        if(routeStartMarkers.length!==0) {
+            fixZoom(8);
+            mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
+        }
     }
 
     const panOut = () => {
@@ -127,9 +131,12 @@ export default function BaseMap() {
 
     const exit = () => {
         if(showRouteMarkers){
+            fixZoom(8);
             setShowRouteMarkers(false);
+            panTo([routeStartMarkers[0].long, routeStartMarkers[0].lat], 8);
         }
         else {
+            fixZoom(0);
             if (showRoutes) setShowRouteMarkers(false);
             setShowRoutes(!showRoutes);
             panTo([79.250, 30.006], 8);
@@ -149,6 +156,11 @@ export default function BaseMap() {
                 },
             )
         }
+    }
+
+    const fixZoom = (zoom) => {
+        const map = mapRef.current.getMap();
+        map.setMinZoom(zoom);
     }
 
     return (
@@ -186,9 +198,12 @@ export default function BaseMap() {
                                         longitude={marker.long}
                                         latitude={marker.lat}
                                         onClick={()=>{
-                                            if(!showRouteMarkers) panTo([marker.long, marker.lat], 8);
+                                            if(!showRouteMarkers) panTo([marker.long, marker.lat], 9.8);
                                             setShowMarkers(true); addRouteMarkers(marker.uniqueID);
-                                            setShowRouteMarkers(!showRouteMarkers)}}
+                                            setShowRouteMarkers(!showRouteMarkers)
+                                            fixZoom(9.8);
+                                            mapRef.current.getMap().setCenter([marker.long, marker.lat]);
+                                            }}
                                         >
                                         <div className={'cursor-pointer '}>
                                             <img
@@ -211,7 +226,9 @@ export default function BaseMap() {
                                         longitude={marker.long}
                                         latitude={marker.lat}
                                         onClick={() => {
-                                            panTo([marker.long, marker.lat], 10)
+                                            panTo([marker.long, marker.lat], 13);
+                                            mapRef.current.getMap().setMinZoom(13);
+                                            mapRef.current.getMap().setCenter([marker.long, marker.lat]);
                                         }}
                                     >
                                         {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
