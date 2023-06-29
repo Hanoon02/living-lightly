@@ -169,11 +169,13 @@ export default function BaseMap() {
             if(showRouteMarkers) {
                 const indexOfScopedMarker = routeMarkers.indexOf(scopedMarker);
                 if (direction === 1) { //Which means to the next one
-                    const nextMarker = Math.min(indexOfScopedMarker + 1, routeMarkers.length - 1);
+                    var nextMarker = Math.min(indexOfScopedMarker + 1, routeMarkers.length - 1);
+                    if(nextMarker===routeMarkers.length - 1) nextMarker=0;
                     setScopedMarker(routeMarkers[nextMarker]);
                     mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
                 } else { // Which means the previous one
-                    const nextMarker = Math.max(indexOfScopedMarker - 1, 0);
+                    var nextMarker = Math.max(indexOfScopedMarker - 1, 0);
+                    if(nextMarker===0) nextMarker=routeMarkers.length - 1;
                     setScopedMarker(routeMarkers[nextMarker]);
                     mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
                 }
