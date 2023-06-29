@@ -20,7 +20,7 @@ export function ZoomStepper({ zoom }) {
                         opacity: 0.5,
                     }
                 }} onClick={() => {
-                    setZoomLevel(Math.min(zoomLevel + 1, ZOOM_IN_LIMIT))
+                    setZoomLevel(Math.min(zoomLevel + 2, ZOOM_IN_LIMIT))
 
                 }}>
                 <Add />
@@ -31,7 +31,7 @@ export function ZoomStepper({ zoom }) {
                     opacity: 0.5,
                 }
             }} onClick={() => {
-                setZoomLevel(Math.max(zoomLevel - 1, ZOOM_OUT_LIMIT))
+                setZoomLevel(Math.max(zoomLevel - 2, ZOOM_OUT_LIMIT))
             }}>
                 <Remove />
             </Button>
@@ -40,24 +40,19 @@ export function ZoomStepper({ zoom }) {
 
 }
 
-export function MapPopup({ marker, onClose }) {
+export function MapPopup({ marker }) {
     return (
 
-        <Box sx={{ padding: 5, position: "absolute", bottom: "200px", right: "200px", backgroundSize: "400px 400px", backgroundImage: INSET_MAP_OVERLAY_ASSET, width: 400, height: 400, zIndex: 15, alignItems: "center" }}>
+        <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
             <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
                 <p className='briem-font text-[22px] text-[#000]' >
                     {marker.title}{marker.name}
                 </p>
-                <Button sx={{color:"black"}} onClick={onClose}> 
-                    <Close></Close>
-                </Button>
             </Stack>
-
-
             {marker.mediafile && marker.mediafile.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
             <Divider></Divider>
             <Typography variant="subtitle2">Lorem ipsum dolor sit amet</Typography>
-        </Box>
+        </div>
     )
 }
 
@@ -79,6 +74,13 @@ export function NextArrow() {
 export function PrevArrow() {
     return(
         <div className={"rounded-full cursor-pointer bg-cover w-[35px] bg-[url('../public/Assets/Images/arrowTexture.png')] h-[35px] flex justify-center items-center"}>
+            <img className={'mt-1'} src={ARROW_PREV_IMG} alt={'prev'}/>
+        </div>
+    )
+}
+export function ExitArrow() {
+    return(
+        <div className={"border-[1px] border-black rounded-full cursor-pointer w-[35px] h-[35px] flex justify-center items-center"}>
             <img className={'mt-1'} src={ARROW_PREV_IMG} alt={'prev'}/>
         </div>
     )
