@@ -17,7 +17,7 @@ import {
 } from '../../Constants/constants';
 import {getContentForChannel, getSubChannel} from '../../Client/mvc.client';
 import { Marker, Map, MapProvider, Source, Layer } from 'react-map-gl';
-import { MapPopup, ZoomStepper, NextArrow, PrevArrow, CommunityPopup } from './components.map';
+import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow, CommunityPopup } from './components.map';
 import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
@@ -130,6 +130,7 @@ export default function BaseMap() {
     }, [])
 
     const exit = () => {
+        setShowMenu(false);
         if(showRouteMarkers){
             fixZoom(8);
             setShowRouteMarkers(false);
@@ -163,6 +164,47 @@ export default function BaseMap() {
         map.setMinZoom(zoom);
     }
 
+    const scroll = (direction) => {
+        if(scopedMarker) {
+            if(showRouteMarkers) {
+                const indexOfScopedMarker = routeMarkers.indexOf(scopedMarker);
+                if (direction === 1) { //Which means to the next one
+                    const nextMarker = Math.min(indexOfScopedMarker + 1, routeMarkers.length - 1);
+                    setScopedMarker(routeMarkers[nextMarker]);
+                    mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
+                } else { // Which means the previous one
+                    const nextMarker = Math.max(indexOfScopedMarker - 1, 0);
+                    setScopedMarker(routeMarkers[nextMarker]);
+                    mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
+                }
+            }
+            else if(showRoutes){
+                const indexOfScopedMarker = routeStartMarkers.indexOf(scopedMarker);
+                if (direction === 1) { //Which means to the next one
+                    const nextMarker = Math.min(indexOfScopedMarker + 1, routeStartMarkers.length - 1);
+                    setScopedMarker(routeStartMarkers[nextMarker]);
+                    mapRef.current.getMap().setCenter([routeStartMarkers[nextMarker].long, routeStartMarkers[nextMarker].lat]);
+                } else { // Which means the previous one
+                    const nextMarker = Math.max(indexOfScopedMarker - 1, 0);
+                    setScopedMarker(routeStartMarkers[nextMarker]);
+                    mapRef.current.getMap().setCenter([routeStartMarkers[nextMarker].long, routeStartMarkers[nextMarker].lat]);
+                }
+            }
+        }
+        else {
+            if (direction === 0) {
+                if(routeMarkers.length!==0) {
+                    setScopedMarker(routeMarkers[0]);
+                    mapRef.current.getMap().setCenter([routeMarkers[0].long, routeMarkers[0].lat]);
+                }
+                else if(routeStartMarkers.length!==0){
+                    setScopedMarker(routeStartMarkers[0]);
+                    mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
+                }
+            }
+        }
+    }
+
     return (
 
         <MapProvider>
@@ -186,8 +228,13 @@ export default function BaseMap() {
                 >;
                     <Box sx={{ position: 'absolute', top: "50px", left: "80px", zIndex: 10 }}>
                         <div>
-                            <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
-                            {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
+                            {!(showRoutes && routeStartMarkers && routeStartMarkers.length != 0) ?
+                                <>
+                                    <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
+                                    {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
+                                </>:
+                                    <div onClick={()=>exit()}><ExitArrow/></div>
+                            }
                         </div>
                     </Box>
                     {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 &&
@@ -210,6 +257,7 @@ export default function BaseMap() {
                                                 id={'route_start_marker'}
                                                 onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true);}}
                                                 onMouseLeave={() => {setShowPopup(false);}}
+                                                className={'shadow-2xl'}
                                                 src={ROUTE_START_IMG} alt={marker.uniqueID} style={{ height: "40px" }}
                                             />
                                         </div>
@@ -256,16 +304,12 @@ export default function BaseMap() {
                         <Box sx={{ position: 'absolute', bottom: "100px", right: "90px", zIndex: 10 }}>
                             <ZoomStepper zoom={MAP_ZOOM} />
                         </Box>
-                        {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 &&
-                            <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
-                                <div onClick={()=>exit()}><PrevArrow/></div>
-                            </Box>
-                        }
-                        {showRouteMarkers && routeMarkers && routeMarkers.length != 0 &&
-                            <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
-                                <NextArrow />
-                            </Box>
-                        }
+                        <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
+                            <div onClick={()=>scroll(-1)}><PrevArrow/></div>
+                        </Box>
+                        <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
+                            <div onClick={()=>scroll(1)}><NextArrow /></div>
+                        </Box>
                         {(routeStartMarkers.length===0 || !showRoutes) &&
                             <Box>
                                 <Marker
@@ -276,7 +320,9 @@ export default function BaseMap() {
                                         setShowMarkers(true);
                                         handleCommunity(allCommunity[0]);
                                     }}
-                                   className={'ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> Van Gujjars of Uttarakhand </p>
+                                   onMouseEnter={() => {setScopedMarker(allCommunity[0]); setShowPopup(true);}}
+                                   onMouseLeave={() => {setShowPopup(false);}}
+                                   className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> Van Gujjars of Uttarakhand </p>
                                 </Marker>
                             </Box>
                         }

@@ -22,9 +22,13 @@ export default function About() {
                             </div>
                         </div>
                         <div className={'pt-[10px] w-1/2 flex flex-col align-center justify-center cursor-pointer'}>
-                            <button className={'rounded-full px-[100px] mx-auto py-2 text-[24px] bg-[#D0BA89]'}>
-                                <Link to={'/base'}>Explore</Link>
-                            </button>
+                            <div className={'flex justify-center'}>
+                                <Link to={'/'}>
+                                    <button className={'rounded-full px-[100px] mx-auto py-2 text-[24px] bg-[#D0BA89]'}>
+                                        Explore
+                                    </button>
+                                </Link>
+                            </div>
                             <div className={'brder border-3 border-black h-[500px]'}>
                                 <div className={'absolute'}>
                                     <p className={'text-[#894E35] text-[24px] pt-[200px] pl-5 underline'}>

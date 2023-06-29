@@ -20,7 +20,7 @@ export function ZoomStepper({ zoom }) {
                         opacity: 0.5,
                     }
                 }} onClick={() => {
-                    setZoomLevel(Math.min(zoomLevel + 1, ZOOM_IN_LIMIT))
+                    setZoomLevel(Math.min(zoomLevel + 2, ZOOM_IN_LIMIT))
 
                 }}>
                 <Add />
@@ -31,7 +31,7 @@ export function ZoomStepper({ zoom }) {
                     opacity: 0.5,
                 }
             }} onClick={() => {
-                setZoomLevel(Math.max(zoomLevel - 1, ZOOM_OUT_LIMIT))
+                setZoomLevel(Math.max(zoomLevel - 2, ZOOM_OUT_LIMIT))
             }}>
                 <Remove />
             </Button>
@@ -79,6 +79,13 @@ export function NextArrow() {
 export function PrevArrow() {
     return(
         <div className={"rounded-full cursor-pointer bg-cover w-[35px] bg-[url('../public/Assets/Images/arrowTexture.png')] h-[35px] flex justify-center items-center"}>
+            <img className={'mt-1'} src={ARROW_PREV_IMG} alt={'prev'}/>
+        </div>
+    )
+}
+export function ExitArrow() {
+    return(
+        <div className={"border-[1px] border-black rounded-full cursor-pointer w-[35px] h-[35px] flex justify-center items-center"}>
             <img className={'mt-1'} src={ARROW_PREV_IMG} alt={'prev'}/>
         </div>
     )
