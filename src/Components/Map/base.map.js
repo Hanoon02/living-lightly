@@ -16,7 +16,7 @@ import {
 
 } from '../../Constants/constants';
 import {getContentForChannel, getSubChannel} from '../../Client/mvc.client';
-import { Marker, Map, MapProvider, Source, Layer } from 'react-map-gl';
+import { Marker, Map, MapProvider, Source, Layer, Popup } from 'react-map-gl';
 import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow, CommunityPopup } from './components.map';
 import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
@@ -237,7 +237,7 @@ export default function BaseMap() {
                             }
                         </div>
                     </Box>
-                    {showRoutes && routeStartMarkers && routeStartMarkers.length != 0 &&
+                    {showRoutes && (routeMarkers.length===0 || !showRouteMarkers) && routeStartMarkers && routeStartMarkers.length != 0 &&
                         routeStartMarkers.map(marker => {
                             return (
                                 <div className={"flex "}>
@@ -299,8 +299,15 @@ export default function BaseMap() {
                                 </div>);
                         })}
                         {showPopup &&
-                            <MapPopup marker={scopedMarker} onClose={() => { setShowPopup(false) }}
-                        />}
+                            <Popup
+                                longitude={scopedMarker.long}
+                                latitude={scopedMarker.lat}
+                                closeButton={false}
+                                offset={30}
+                            >
+                                <MapPopup marker={scopedMarker}/>
+                            </Popup>
+                            }
                         <Box sx={{ position: 'absolute', bottom: "100px", right: "90px", zIndex: 10 }}>
                             <ZoomStepper zoom={MAP_ZOOM} />
                         </Box>

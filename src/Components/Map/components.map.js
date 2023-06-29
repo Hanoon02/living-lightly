@@ -40,24 +40,19 @@ export function ZoomStepper({ zoom }) {
 
 }
 
-export function MapPopup({ marker, onClose }) {
+export function MapPopup({ marker }) {
     return (
 
-        <Box sx={{ padding: 5, position: "absolute", bottom: "200px", right: "200px", backgroundSize: "400px 400px", backgroundImage: INSET_MAP_OVERLAY_ASSET, width: 400, height: 400, zIndex: 15, alignItems: "center" }}>
+        <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
             <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
                 <p className='briem-font text-[22px] text-[#000]' >
                     {marker.title}{marker.name}
                 </p>
-                <Button sx={{color:"black"}} onClick={onClose}> 
-                    <Close></Close>
-                </Button>
             </Stack>
-
-
             {marker.mediafile && marker.mediafile.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
             <Divider></Divider>
             <Typography variant="subtitle2">Lorem ipsum dolor sit amet</Typography>
-        </Box>
+        </div>
     )
 }
 
