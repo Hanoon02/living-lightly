@@ -209,7 +209,7 @@ export default function BaseMap() {
 
     return (
 
-        <MapProvider>
+        <>
             <Box sx={{ backgroundImage: MAP_OVERLAY_ASSET, width: '100vw', height: '100vh', backgroundSize: "100vw 100vh", zIndex: 1 }}>
                 <Map
                     initialViewState={{
@@ -313,12 +313,16 @@ export default function BaseMap() {
                         <Box sx={{ position: 'absolute', bottom: "100px", right: "90px", zIndex: 10 }}>
                             <ZoomStepper zoom={MAP_ZOOM} />
                         </Box>
-                        <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
-                            <div onClick={()=>scroll(-1)}><PrevArrow/></div>
-                        </Box>
-                        <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
-                            <div onClick={()=>scroll(1)}><NextArrow /></div>
-                        </Box>
+                        {showRouteMarkers &&
+                            <>
+                                <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
+                                    <div onClick={()=>scroll(-1)}><PrevArrow/></div>
+                                </Box>
+                                <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
+                                    <div onClick={()=>scroll(1)}><NextArrow /></div>
+                                </Box>
+                            </>
+                        }
                         {(routeStartMarkers.length===0 || !showRoutes) &&
                             <Box>
                                 <Marker
@@ -356,8 +360,6 @@ export default function BaseMap() {
 
                 </Map>
             </Box>
-        </MapProvider>
-
-
+        </>
     );
 }
