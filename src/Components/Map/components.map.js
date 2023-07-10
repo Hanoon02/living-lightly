@@ -40,7 +40,7 @@ export function ZoomStepper({ zoom }) {
 
 }
 
-export function MapPopup({ marker }) {
+export function MapPopup({ marker, showArrows, leftArrow, rightArrow }) {
     return (
 
         <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
@@ -52,6 +52,10 @@ export function MapPopup({ marker }) {
             {marker.mediafile && marker.mediafile.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
             <Divider></Divider>
             <Typography variant="subtitle2">Lorem ipsum dolor sit amet</Typography>
+            {showArrows && <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }}>
+                <Button onClick={leftArrow} sx={{ backgroundColor: "goldenrod", ':hover': { backgroundColor: "goldenrod", opacity: 0.5, } }}><img src={ARROW_PREV_IMG} alt={'prev'} /></Button>
+                <Button onClick={rightArrow} sx={{ backgroundColor: "goldenrod", ':hover': { backgroundColor: "goldenrod", opacity: 0.5, } }}><img src={ARROW_NEXT_IMG} alt={'next'} /></Button>
+            </Box>}
         </div>
     )
 }
@@ -80,8 +84,8 @@ export function PrevArrow() {
 }
 export function ExitArrow() {
     return(
-        <div className={"border-[1px] border-black rounded-full cursor-pointer w-[35px] h-[35px] flex justify-center items-center"}>
-            <img className={'mt-1'} src={ARROW_PREV_IMG} alt={'prev'}/>
+        <div className={"text-[20px] font-[500] rounded-xl cursor-pointer w-[55px] h-[35px] flex justify-center items-center"}>
+            Back
         </div>
     )
 }

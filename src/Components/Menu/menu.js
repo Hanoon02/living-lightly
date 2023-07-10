@@ -1,14 +1,26 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
+import {Link} from "react-router-dom";
 
-export default function Menu({ communities, selectCommunity }) {
+export default function Menu({selectCommunity, mapData }) {
     const [showCommunities, setShowCommunities] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
+    const [allCommunities, setAllCommunities] = useState([]);
 
     function returnTitle(community) {
         var title = community.split("-").join(" ");
         return title;
     }
+
+    useEffect(() => {
+        var temp = [];
+        for( const [key, value] of Object.entries(mapData)) {
+            var tempKey = JSON.parse(key);
+            temp.push(tempKey["name"]);
+        }
+        setAllCommunities(temp);
+    }, [])
+
 
     return (
         <>
@@ -29,15 +41,23 @@ export default function Menu({ communities, selectCommunity }) {
                             <ArrowIcon /></div>
                     </button>
                     </div>
+                    <div>
+                        <Link
+                            to={'/about'}
+                        >
+                        <div className={'flex py-3'}><p className={'px-1'}>About </p>
+                            <ArrowIcon /></div>
+                        </Link>
+                    </div>
                 </div>
                 <div className={'mx-3'}>
                     {showCommunities &&
                         <div className={'bg-[#F8F3E3] py-2 px-5 rounded-xl shadow-lg briem-font'}>
-                            {communities.map((community, index) => {
+                            {allCommunities.map((community, index) => {
                                 return (
-                                    <button key={index} onClick={() => { selectCommunity(community) }}>
-                                        <p style={{"text-transform": "capitalize"}}>{returnTitle(community.name)}</p>
-                                    </button>
+                                    <div key={index} className={'py-2 cursor-pointer'}>
+                                        <p style={{"text-transform": "capitalize"}} onClick={() => selectCommunity(community)}>{returnTitle(community)}</p>
+                                    </div>
                                 )
                             })}
                         </div>}

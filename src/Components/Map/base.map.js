@@ -26,8 +26,6 @@ mapboxgl.accessToken = env_vars.ACCESS_TOKEN
 
 
 export default function BaseMap() {
-    const [markers, setMarkers] = useState([]);
-    const [showMarkers, setShowMarkers] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [showPopup, setShowPopup] = useState(null);
     const [scopedMarker, setScopedMarker] = useState({});
@@ -36,80 +34,95 @@ export default function BaseMap() {
     const [geojson, setGeoJson] = useState({});
     const [stGeojson, setStGeoJson] = useState({});
 
-
+    const [mapData, setMapData] = useState({});
     const [allCommunity, setAllCommunity] = useState([]);
-    const [allRoutes, setAllRoutes] = useState([]);
+    const [selectedCommunity, setSelectedCommunity] = useState('');
     const [routeStartMarkers, setRouteStartMarkers] = useState([]);
     const [routeMarkers, setRouteMarkers] = useState([]);
     const [showRoutes, setShowRoutes] = useState(false);
     const [showRouteMarkers, setShowRouteMarkers] = useState(false);
 
     useEffect(() => {
-        getAllCommunities();
+        getAllMapData();
     }, [])
 
-    function calculateLat(currLat){
-        var newLat = currLat -0.1;
-        return newLat;
-    }
-
-    const getAllCommunities = () => {
-        var communities = [];
+    const getAllMapData = () =>{
+        var mapTempData = {};
         getSubChannel(env_vars.CHANNEL_ID).then(response => {
-            var data = response.data;
-            data.forEach(element => { communities.push(element);});
-            setAllCommunity(communities);
-        })
-    }
-
-    const getAllRoutes = (communityID) => {
-        var routes = [];
-        getSubChannel(communityID).then(response => {
-            var data = response.data;
+            const data = response.data;
+            var allCommunities = [];
             data.forEach(element => {
-                routes.push(element);
+                const elementContent = JSON.stringify(element);
+                mapTempData[elementContent] = {};
+                allCommunities.push(element);
+                getSubChannel(element.uniqueID).then(response => {
+                    const routesData = response.data;
+                    routesData.forEach (route => {
+                        const routeContent = JSON.stringify(route);
+                        mapTempData[elementContent][routeContent] = {};
+                        getContentForChannel(route.uniqueID).then(response => {
+                            const markersData = response.data;
+                            var allMarkers = []
+                            markersData.forEach(marker => {
+                                allMarkers.push(marker);
+                            })
+                            mapTempData[elementContent][routeContent] = allMarkers;
+                        })
+                    })
+                })
             });
-            setAllRoutes(routes);
+            setMapData(mapTempData);
+            setAllCommunity(allCommunities);
         })
     }
 
-    const showStartMarkers = () =>{
-        var markers = [];
-        allRoutes.forEach(element => {
-            markers.push(element);
-        });
-        setRouteStartMarkers(markers);
+    function returnTitle(community) {
+        var title = community.split("-").join(" ");
+        return title;
     }
 
-    const addRouteMarkers = (routeID)=>{
-        var markers = [];
-        getContentForChannel(routeID).then(response => {
-            var data = response.data;
-            data.forEach(element => {markers.push(element);});
-            setRouteMarkers(markers);
-        })
+    const getRouteMarkers = (community, route) => {
+        var routeMarkersTemp = [];
+        for(const [key1, value1] of Object.entries(mapData)){
+            var data1 = JSON.parse(key1);
+            if(data1.name === community){
+                for(const [key2, value2] of Object.entries(value1)){
+                    var data2 = JSON.parse(key2);
+                    if(data2.name === route){
+                        for(const [key3, value3] of Object.entries(value2)){
+                            routeMarkersTemp.push(value3);
+                        }
+                    }
+                }
+            }
+        }
+        setRouteMarkers(routeMarkersTemp);
     }
-    const handleCommunity = async (community) => {
-        panTo([community.long, community.lat], 8);
+
+    const getRouteStartMarkers = (community) => {
+        var data = {};
+        var allRouteStartMarkers = [];
+        for(const [key, values] of Object.entries(mapData)){
+            data = JSON.parse(key);
+            if(data.name === community){
+                for(const [key, value] of Object.entries(values)){
+                    const start = JSON.parse(key);
+                    allRouteStartMarkers.push(start);
+                }
+            }
+        }
+        setRouteStartMarkers(allRouteStartMarkers);
+    }
+
+    const handleCommunity = (community) => {
         if(showRoutes) setShowRouteMarkers(false);
         if(routeStartMarkers.length!==0) setShowRoutes(!showRoutes);
-        await getAllRoutes(community.uniqueID);
-        showStartMarkers();
+        getRouteStartMarkers(community);
         if(routeStartMarkers.length!==0) {
             fixZoom(8);
             mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
         }
     }
-
-    const panOut = () => {
-        panTo([MAP_CENTER.long, MAP_CENTER.lat], MAP_ZOOM);
-    }
-
-    useEffect(() => {
-        getContentForChannel(env_vars.CHANNEL_ID).then(response => {
-            setMarkers(response.data);
-        })
-    }, [])
 
     useEffect(() => {
         if (routeMarkers && routeMarkers.length > 0) {
@@ -230,13 +243,11 @@ export default function BaseMap() {
                 >;
                     <Box sx={{ position: 'absolute', top: "50px", left: "80px", zIndex: 10 }}>
                         <div>
-                            {!(showRoutes && routeStartMarkers && routeStartMarkers.length != 0) ?
-                                <>
-                                    <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
-                                    {showMenu && <Menu communities={allCommunity} selectCommunity={handleCommunity}/>}
-                                </>:
-                                    <div onClick={()=>exit()}><ExitArrow/></div>
-                            }
+                            <div className={'flex justify-start items-center gap-5'}>
+                                <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
+                                {(showRoutes && routeStartMarkers && routeStartMarkers.length != 0) && <div onClick={()=>exit()}><ExitArrow/></div>}
+                            </div>
+                            {showMenu && <Menu selectCommunity={handleCommunity} mapData={mapData}/>}
                         </div>
                     </Box>
                     {showRoutes && (routeMarkers.length===0 || !showRouteMarkers) && routeStartMarkers && routeStartMarkers.length != 0 &&
@@ -248,7 +259,7 @@ export default function BaseMap() {
                                         latitude={marker.lat}
                                         onClick={()=>{
                                             if(!showRouteMarkers) panTo([marker.long, marker.lat], 9.8);
-                                            setShowMarkers(true); addRouteMarkers(marker.uniqueID);
+                                            getRouteMarkers(selectedCommunity, marker.name);
                                             setShowRouteMarkers(!showRouteMarkers)
                                             fixZoom(9.8);
                                             mapRef.current.getMap().setCenter([marker.long, marker.lat]);
@@ -256,7 +267,6 @@ export default function BaseMap() {
                                         >
                                         <div className={'cursor-pointer '}>
                                             <img
-                                                id={'route_start_marker'}
                                                 onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true);}}
                                                 onMouseLeave={() => {setShowPopup(false);}}
                                                 className={'shadow-2xl'}
@@ -281,22 +291,22 @@ export default function BaseMap() {
                                             mapRef.current.getMap().setCenter([marker.long, marker.lat]);
                                         }}
                                     >
-                                        {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
-                                            <div className={'flex flex-col justify-center'}
+
+                                            <div className={'cursor-pointer flex flex-col justify-center'}
                                                  onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true);}}
                                                  onMouseLeave={() => {setShowPopup(false);}}
                                             >
-                                                <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[30px] h-[40px]'}/>
-                                                <p className={'briem-font text-[#894E35] text-[18px]'}>{marker.title}</p>
-                                            </div> :
-                                            <div className={'flex flex-col justify-center'}
-                                                 onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true);}}
-                                                 onMouseLeave={() => {setShowPopup(false);}}
-                                            >
-                                                <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[20px] h-[30px]'}/>
-                                                <p className={'hover:underline-offset-2 hover:underline briem-font text-[#894E35] text-[14px]'}>{marker.title}</p>
+                                                {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
+                                                    <>
+                                                        <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[30px] h-[40px]'}/>
+                                                        <p className={'briem-font text-[#894E35] text-[18px]'}>{marker.title}</p>
+                                                    </>:
+                                                    <>
+                                                        <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[20px] h-[30px]'}/>
+                                                        <p className={'hover:underline-offset-2 hover:underline briem-font text-[#894E35] text-[14px]'}>{marker.title}</p>
+                                                    </>
+                                                }
                                             </div>
-                                        }
                                     </Marker>
                                 </div>);
                         })}
@@ -305,11 +315,11 @@ export default function BaseMap() {
                                 longitude={scopedMarker.long}
                                 latitude={scopedMarker.lat}
                                 closeButton={false}
-                                offset={30}
+                                offset={20}
                             >
                                 <MapPopup marker={scopedMarker}/>
                             </Popup>
-                            }
+                        }
                         <Box sx={{ position: 'absolute', bottom: "100px", right: "90px", zIndex: 10 }}>
                             <ZoomStepper zoom={MAP_ZOOM} />
                         </Box>
@@ -323,22 +333,24 @@ export default function BaseMap() {
                                 </Box>
                             </>
                         }
-                        {(routeStartMarkers.length===0 || !showRoutes) &&
-                            <Box>
-                                <Marker
-                                    longitude={79.250}
-                                    latitude={30.006}>
-                                    <p onClick={() => {
-                                        panTo([79.250, 30.006], 8);
-                                        setShowMarkers(true);
-                                        handleCommunity(allCommunity[0]);
-                                    }}
-                                   onMouseEnter={() => {setScopedMarker(allCommunity[0]); setShowPopup(true);}}
-                                   onMouseLeave={() => {setShowPopup(false);}}
-                                   className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> Van Gujjars of Uttarakhand </p>
-                                </Marker>
-                            </Box>
-                        }
+                        {(routeStartMarkers.length===0 || !showRoutes) && allCommunity.map((community, index) => {
+                            return(
+                                <Box>
+                                    <Marker
+                                        longitude={community.long}
+                                        latitude={community.lat}>
+                                        <p onClick={() => {
+                                            panTo([community.long, community.lat], 8);
+                                            handleCommunity(community.name);
+                                            setSelectedCommunity(community.name);
+                                        }}
+                                       onMouseEnter={() => {setScopedMarker(community); setShowPopup(true);}}
+                                       onMouseLeave={() => {setShowPopup(false);}}
+                                       style={{"text-transform": "capitalize"}}
+                                       className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> {returnTitle(community.name)} </p>
+                                    </Marker>
+                                </Box>);
+                        })}
                         <Box sx={{ backgroundImage: MAP_OVERLAY_ASSET, zIndex: 5, border: 1, borderStyle: 'dashed', borderRadius: 1, borderColor: "brown", width: 100, height: 100, zIndex: 2, position: 'absolute', bottom: '150px', right: '100px' }}>
                             <Map
                                 initialViewState={{
