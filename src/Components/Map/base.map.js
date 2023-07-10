@@ -153,7 +153,7 @@ export default function BaseMap() {
             fixZoom(0);
             if (showRoutes) setShowRouteMarkers(false);
             setShowRoutes(!showRoutes);
-            panTo([79.250, 30.006], 8);
+            panTo([selectedCommunity.long, selectedCommunity.lat], 8);
         }
     }
 
@@ -178,46 +178,17 @@ export default function BaseMap() {
     }
 
     const scroll = (direction) => {
-        if(scopedMarker) {
-            if(showRouteMarkers) {
-                const indexOfScopedMarker = routeMarkers.indexOf(scopedMarker);
-                if (direction === 1) { //Which means to the next one
-                    var nextMarker = Math.min(indexOfScopedMarker + 1, routeMarkers.length - 1);
-                    if(nextMarker===routeMarkers.length - 1) nextMarker=0;
-                    setScopedMarker(routeMarkers[nextMarker]);
-                    mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
-                } else { // Which means the previous one
-                    var nextMarker = Math.max(indexOfScopedMarker - 1, 0);
-                    if(nextMarker===0) nextMarker=routeMarkers.length - 1;
-                    setScopedMarker(routeMarkers[nextMarker]);
-                    mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
-                }
-            }
-            else if(showRoutes){
-                const indexOfScopedMarker = routeStartMarkers.indexOf(scopedMarker);
-                if (direction === 1) { //Which means to the next one
-                    const nextMarker = Math.min(indexOfScopedMarker + 1, routeStartMarkers.length - 1);
-                    setScopedMarker(routeStartMarkers[nextMarker]);
-                    mapRef.current.getMap().setCenter([routeStartMarkers[nextMarker].long, routeStartMarkers[nextMarker].lat]);
-                } else { // Which means the previous one
-                    const nextMarker = Math.max(indexOfScopedMarker - 1, 0);
-                    setScopedMarker(routeStartMarkers[nextMarker]);
-                    mapRef.current.getMap().setCenter([routeStartMarkers[nextMarker].long, routeStartMarkers[nextMarker].lat]);
-                }
-            }
+        var nextMarker;
+        const indexOfScopedMarker = routeMarkers.indexOf(scopedMarker);
+        if (direction === 1) { //Which means to the next one
+            if(indexOfScopedMarker===routeMarkers.length - 1) nextMarker = 0;
+            else nextMarker = Math.min(indexOfScopedMarker + 1, routeMarkers.length - 1);
+        } else { // Which means the previous one
+            if(indexOfScopedMarker===0) nextMarker=routeMarkers.length - 1;
+            else nextMarker = Math.max(indexOfScopedMarker - 1, 0);
         }
-        else {
-            if (direction === 0) {
-                if(routeMarkers.length!==0) {
-                    setScopedMarker(routeMarkers[0]);
-                    mapRef.current.getMap().setCenter([routeMarkers[0].long, routeMarkers[0].lat]);
-                }
-                else if(routeStartMarkers.length!==0){
-                    setScopedMarker(routeStartMarkers[0]);
-                    mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
-                }
-            }
-        }
+        setScopedMarker(routeMarkers[nextMarker]);
+        mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
     }
 
     return (
@@ -259,7 +230,7 @@ export default function BaseMap() {
                                         latitude={marker.lat}
                                         onClick={()=>{
                                             if(!showRouteMarkers) panTo([marker.long, marker.lat], 9.8);
-                                            getRouteMarkers(selectedCommunity, marker.name);
+                                            getRouteMarkers(selectedCommunity.name, marker.name);
                                             setShowRouteMarkers(!showRouteMarkers)
                                             fixZoom(9.8);
                                             mapRef.current.getMap().setCenter([marker.long, marker.lat]);
@@ -342,7 +313,7 @@ export default function BaseMap() {
                                         <p onClick={() => {
                                             panTo([community.long, community.lat], 8);
                                             handleCommunity(community.name);
-                                            setSelectedCommunity(community.name);
+                                            setSelectedCommunity(community);
                                         }}
                                        onMouseEnter={() => {setScopedMarker(community); setShowPopup(true);}}
                                        onMouseLeave={() => {setShowPopup(false);}}
