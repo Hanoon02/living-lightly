@@ -41,6 +41,7 @@ export function ZoomStepper({ zoom }) {
 }
 
 export function MapPopup({ marker, showArrows, leftArrow, rightArrow }) {
+
     return (
 
         <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
