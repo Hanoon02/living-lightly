@@ -21,7 +21,7 @@ import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow, CommunityPopup 
 import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
-
+import { createRoot } from 'react-dom/client';
 mapboxgl.accessToken = env_vars.ACCESS_TOKEN
 
 
@@ -315,11 +315,13 @@ export default function BaseMap() {
                                         mapRef.current.getMap().setMinZoom(13);
                                         mapRef.current.getMap().setCenter([marker.long, marker.lat]);
                                     }}
+                                    popup={new mapboxgl.Popup().setHTML(`
+                                    <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
+                                        ${marker.title}
+                                    </div>`)}
                                 >
 
                                     <div className={'cursor-pointer flex flex-col justify-center'}
-                                         onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true);}}
-                                         onMouseLeave={() => {setShowPopup(false);}}
                                     >
                                         {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
                                             <>
