@@ -22,7 +22,6 @@ import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon,
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
 
-import { createRoot } from 'react-dom/client';
 
 mapboxgl.accessToken = env_vars.ACCESS_TOKEN
 
@@ -77,11 +76,8 @@ export default function BaseMap() {
         })
     }
 
-    function returnTitle(community) {
-        var title = community.split("-").join(" ");
-        return title;
-    }
-
+    const returnTitle = (community) => community.split("-").join(" ");
+    
     const getRouteMarkers = (community, route) => {
         var routeMarkersTemp = [];
         for (const [key1, value1] of Object.entries(mapData)) {
@@ -98,6 +94,17 @@ export default function BaseMap() {
             }
         }
         setRouteMarkers(routeMarkersTemp);
+        const lats = routeMarkersTemp.map(elem=>elem.lat)
+        const lngs = routeMarkersTemp.map(elem=>elem.long)
+        var minLat = Math.min(...lats);
+        var maxLat = Math.max(...lats);
+        var minLng = Math.min(...lngs);
+        var maxLng = Math.max(...lngs);
+    
+        mapRef.current.getMap().fitBounds([
+            [maxLng, minLat], // southwestern corner of the bounds
+            [minLng, maxLat] // northeastern corner of the bounds
+        ])        
     }
 
     const getRouteStartMarkers = (community) => {
@@ -112,13 +119,15 @@ export default function BaseMap() {
                 }
             }
         }
-        setRouteStartMarkers(allRouteStartMarkers);
+        return allRouteStartMarkers
     }
 
     const handleCommunity = (community) => {
-        if (showRoutes) setShowRouteMarkers(false);
-        if (routeStartMarkers.length !== 0) setShowRoutes(!showRoutes);
-        getRouteStartMarkers(community);
+        // // if (showRoutes) setShowRouteMarkers(false);
+        // if (routeStartMarkers.length !== 0) setShowRoutes(!showRoutes);
+        const communityStartMarkers = getRouteStartMarkers(community)
+        setRouteStartMarkers(communityStartMarkers)
+        setShowRoutes(true)
         if (routeStartMarkers.length !== 0) {
             fixZoom(8);
             mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
@@ -165,7 +174,7 @@ export default function BaseMap() {
             mapRef.current.flyTo(
                 {
                     center: coords, zoom: zoom,
-                    speed: 10.8,
+                    speed:5,
                     curve: 1,
                     easing(t) {
                         return t;
@@ -236,8 +245,7 @@ export default function BaseMap() {
                                             if (!showRouteMarkers) panTo([marker.long, marker.lat], 9.8);
                                             getRouteMarkers(selectedCommunity.name, marker.name);
                                             setShowRouteMarkers(!showRouteMarkers)
-                                            fixZoom(9.8);
-                                            mapRef.current.getMap().setCenter([marker.long, marker.lat]);
+                                        
                                         }}
                                     >
                                         <div className={'cursor-pointer '}>
@@ -255,16 +263,34 @@ export default function BaseMap() {
                         {showRouteMarkers && <Layer {...createLayer()}></Layer>}
                         <Box sx={{ backgroundImage: COMPASS_ASSET, zIndex: 11, backgroundSize: "cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '50px', right: '50px' }} />
                         {showRouteMarkers && routeMarkers && routeMarkers.length != 0 && routeMarkers.map(marker => {
+                            if (typeof(marker)==="undefined" || marker===null) return;
                             return (
                                 <div>
                                     <Marker
                                         longitude={marker.long}
                                         latitude={marker.lat}
 
-                                        popup={new mapboxgl.Popup().setHTML(`
-                                    <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
-                                        ${marker.title}
-                                        </p></div>`)}
+                                        popup={
+                                            
+                                            marker.mediafile && marker.mediafile.formats ? new mapboxgl.Popup().setHTML(`
+                                            <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
+                                            <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
+                                            <p className='briem-font text-[26px] text-[#000]' >
+                                                ${marker.title}
+                                            </p>
+                                            </Stack>
+                                            <img src=${marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
+                                            <Divider></Divider>
+                                            </div>`) : 
+                                            new mapboxgl.Popup().setHTML(`
+                                            <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
+                                            <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
+                                            <p className='briem-font text-[22px] text-[#000]' >
+                                                ${marker.title}
+                                            </p>
+                                            </Stack>
+                                            <Divider></Divider>
+                                            </div>`)}
                                     >
 
                                         <div className={'cursor-pointer flex flex-col justify-center'}
@@ -308,10 +334,11 @@ export default function BaseMap() {
                         }
                         {(routeStartMarkers.length === 0 || !showRoutes) && allCommunity.map((community, index) => {
                             return (
-                                <Box>
+                                <Box key={index}>
                                     <Marker
                                         longitude={community.long}
                                         latitude={community.lat}>
+
                                         <p onClick={() => {
                                             panTo([community.long, community.lat], 8);
                                             handleCommunity(community.name);
