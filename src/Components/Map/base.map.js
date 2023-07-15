@@ -279,7 +279,7 @@ export default function BaseMap() {
                                                 ${marker.title}
                                             </p>
                                             </Stack>
-                                            <img src=${marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
+                                            <img src=${marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>
                                             <Divider></Divider>
                                             </div>`) : 
                                             new mapboxgl.Popup().setHTML(`
