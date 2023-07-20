@@ -17,7 +17,7 @@ import {
 } from '../../Constants/constants';
 import {getContentForChannel, getSubChannel} from '../../Client/mvc.client';
 import { Marker, Map, MapProvider, Source, Layer, Popup } from 'react-map-gl';
-import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow, CommunityPopup } from './components.map';
+import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow } from './components.map';
 import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
@@ -43,6 +43,7 @@ export default function BaseMap() {
     const [showRouteMarkers, setShowRouteMarkers] = useState(false);
     const [communityOverlay, setCommunityOverlay] = useState([]);
     const [routeOverlay, setRouteOverlay] = useState([]);
+    const [scopedType, setScopedType] = useState('route-point');
 
     useEffect(() => {
         getAllMapData();
@@ -75,7 +76,6 @@ export default function BaseMap() {
             });
             setMapData(mapTempData);
             setAllCommunity(allCommunities);
-            console.log(mapTempData);
         })
     }
 
@@ -266,7 +266,7 @@ export default function BaseMap() {
                                             setSelectedCommunity(community);
                                             getCommunityOverlay(community.name);
                                         }}
-                                           onMouseEnter={() => {setScopedMarker(community); setShowPopup(true);}}
+                                           onMouseEnter={() => {setScopedMarker(community); setShowPopup(true); setScopedType('community');}}
                                            onMouseLeave={() => {setShowPopup(false);}}
                                            style={{"text-transform": "capitalize"}}
                                            className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> {returnTitle(community.name)} </p>
@@ -293,7 +293,7 @@ export default function BaseMap() {
                                         >
                                         <div className={'cursor-pointer '}>
                                             <img
-                                                onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true);}}
+                                                onMouseEnter={() => {setScopedMarker(marker); setShowPopup(true); setScopedType('route-start')}}
                                                 onMouseLeave={() => {setShowPopup(false);}}
                                                 className={'shadow-2xl'}
                                                 src={ROUTE_START_IMG} alt={marker.uniqueID} style={{ height: "40px" }}
@@ -314,6 +314,7 @@ export default function BaseMap() {
                                         panTo([marker.long, marker.lat], 13);
                                         mapRef.current.getMap().setMinZoom(13);
                                         mapRef.current.getMap().setCenter([marker.long, marker.lat]);
+                                        setScopedType('route-point');
                                     }}
                                     popup={new mapboxgl.Popup().setHTML(`
                                     <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
@@ -365,8 +366,9 @@ export default function BaseMap() {
                                 latitude={scopedMarker.lat}
                                 closeButton={false}
                                 offset={20}
+                                maxWidth={"500px"}
                             >
-                                <MapPopup marker={scopedMarker}/>
+                                <MapPopup marker={scopedMarker} type={scopedType}/>
                             </Popup>
                         }
                     </div>
