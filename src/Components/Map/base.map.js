@@ -15,7 +15,7 @@ import {
     ROUTE_POINTER_IMG,
 
 } from '../../Constants/constants';
-import {getContentForChannel, getSubChannel} from '../../Client/mvc.client';
+import { getContentForChannel, getSubChannel } from '../../Client/mvc.client';
 import { Marker, Map, MapProvider, Source, Layer, Popup } from 'react-map-gl';
 import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow } from './components.map';
 import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
@@ -33,7 +33,6 @@ export default function BaseMap() {
     const [state, setState] = useState("")
     const [geojson, setGeoJson] = useState({});
     const [stGeojson, setStGeoJson] = useState({});
-
     const [mapData, setMapData] = useState({});
     const [allCommunity, setAllCommunity] = useState([]);
     const [selectedCommunity, setSelectedCommunity] = useState('');
@@ -49,7 +48,7 @@ export default function BaseMap() {
         getAllMapData();
     }, [])
 
-    const getAllMapData = () =>{
+    const getAllMapData = () => {
         var mapTempData = {};
         getSubChannel(env_vars.CHANNEL_ID).then(response => {
             const data = response.data;
@@ -60,7 +59,7 @@ export default function BaseMap() {
                 allCommunities.push(element);
                 getSubChannel(element.uniqueID).then(response => {
                     const routesData = response.data;
-                    routesData.forEach (route => {
+                    routesData.forEach(route => {
                         const routeContent = JSON.stringify(route);
                         mapTempData[elementContent][routeContent] = {};
                         getContentForChannel(route.uniqueID).then(response => {
@@ -79,20 +78,17 @@ export default function BaseMap() {
         })
     }
 
-    function returnTitle(community) {
-        var title = community.split("-").join(" ");
-        return title;
-    }
-
+    const returnTitle = (community) => community.split("-").join(" ");
+    
     const getRouteMarkers = (community, route) => {
         var routeMarkersTemp = [];
-        for(const [key1, value1] of Object.entries(mapData)){
+        for (const [key1, value1] of Object.entries(mapData)) {
             var data1 = JSON.parse(key1);
-            if(data1.name === community){
-                for(const [key2, value2] of Object.entries(value1)){
+            if (data1.name === community) {
+                for (const [key2, value2] of Object.entries(value1)) {
                     var data2 = JSON.parse(key2);
-                    if(data2.name === route){
-                        for(const [key3, value3] of Object.entries(value2)){
+                    if (data2.name === route) {
+                        for (const [key3, value3] of Object.entries(value2)) {
                             routeMarkersTemp.push(value3);
                         }
                     }
@@ -100,27 +96,41 @@ export default function BaseMap() {
             }
         }
         setRouteMarkers(routeMarkersTemp);
+        const lats = routeMarkersTemp.map(elem=>elem.lat)
+        const lngs = routeMarkersTemp.map(elem=>elem.long)
+        var minLat = Math.min(...lats);
+        var maxLat = Math.max(...lats);
+        var minLng = Math.min(...lngs);
+        var maxLng = Math.max(...lngs);
+    
+        mapRef.current.getMap().fitBounds([
+            [maxLng, minLat], // southwestern corner of the bounds
+            [minLng, maxLat] // northeastern corner of the bounds
+        ])        
     }
 
     const getRouteStartMarkers = (community) => {
         var data = {};
         var allRouteStartMarkers = [];
-        for(const [key, values] of Object.entries(mapData)){
+        for (const [key, values] of Object.entries(mapData)) {
             data = JSON.parse(key);
-            if(data.name === community){
-                for(const [key, value] of Object.entries(values)){
+            if (data.name === community) {
+                for (const [key, value] of Object.entries(values)) {
                     const start = JSON.parse(key);
                     allRouteStartMarkers.push(start);
                 }
             }
         }
-        setRouteStartMarkers(allRouteStartMarkers);
+        return allRouteStartMarkers
     }
 
     const handleCommunity = (community) => {
-        if(showRoutes) setShowRouteMarkers(false);
-        if(routeStartMarkers.length!==0) {
-            setShowRoutes(!showRoutes);
+        // // if (showRoutes) setShowRouteMarkers(false);
+        // if (routeStartMarkers.length !== 0) setShowRoutes(!showRoutes);
+        const communityStartMarkers = getRouteStartMarkers(community)
+        setRouteStartMarkers(communityStartMarkers)
+        setShowRoutes(true)
+        if (routeStartMarkers.length !== 0) {
             fixZoom(8);
             mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
         }
@@ -163,7 +173,7 @@ export default function BaseMap() {
 
     const updateState = (center) => {
         const gjson = getStateJson(center)
-        if(gjson){
+        if (gjson) {
             setState(gjson.properties.NAME_1)
             setStGeoJson(gjson)
         }
@@ -173,9 +183,11 @@ export default function BaseMap() {
         updateState([MAP_CENTER.long, MAP_CENTER.lat])
     }, [])
 
+
+
     const exit = () => {
         setShowMenu(false);
-        if(showRouteMarkers){
+        if (showRouteMarkers) {
             fixZoom(8);
             setShowRouteMarkers(false);
             panTo([routeStartMarkers[0].long, routeStartMarkers[0].lat], 8);
@@ -193,7 +205,7 @@ export default function BaseMap() {
             mapRef.current.flyTo(
                 {
                     center: coords, zoom: zoom,
-                    speed: 0.8,
+                    speed:5,
                     curve: 1,
                     easing(t) {
                         return t;
@@ -212,15 +224,16 @@ export default function BaseMap() {
         var nextMarker;
         const indexOfScopedMarker = routeMarkers.indexOf(scopedMarker);
         if (direction === 1) { //Which means to the next one
-            if(indexOfScopedMarker===routeMarkers.length - 1) nextMarker = 0;
+            if (indexOfScopedMarker === routeMarkers.length - 1) nextMarker = 0;
             else nextMarker = Math.min(indexOfScopedMarker + 1, routeMarkers.length - 1);
         } else { // Which means the previous one
-            if(indexOfScopedMarker===0) nextMarker=routeMarkers.length - 1;
+            if (indexOfScopedMarker === 0) nextMarker = routeMarkers.length - 1;
             else nextMarker = Math.max(indexOfScopedMarker - 1, 0);
         }
         setScopedMarker(routeMarkers[nextMarker]);
         mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
     }
+
 
     return (
 
@@ -246,10 +259,10 @@ export default function BaseMap() {
                     <Box sx={{ position: 'absolute', top: "50px", left: "80px", zIndex: 10 }}>
                         <div>
                             <div className={'flex justify-start items-center gap-5'}>
-                                <div onClick={()=>{setShowMenu(!showMenu)}}> <MenuIcon/> </div>
-                                {(showRoutes && routeStartMarkers && routeStartMarkers.length != 0) && <div onClick={()=>exit()}><ExitArrow/></div>}
+                                <div onClick={() => { setShowMenu(!showMenu) }}> <MenuIcon /> </div>
+                                {(showRoutes && routeStartMarkers && routeStartMarkers.length != 0) && <div onClick={() => exit()}><ExitArrow /></div>}
                             </div>
-                            {showMenu && <Menu selectCommunity={handleCommunity} mapData={mapData}/>}
+                            {showMenu && <Menu selectCommunity={handleCommunity} mapData={mapData} />}
                         </div>
                     </Box>
                     <Box sx={{ backgroundImage: COMPASS_ASSET, zIndex: 11, backgroundSize: "cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '50px', right: '50px' }} />
@@ -316,10 +329,27 @@ export default function BaseMap() {
                                         mapRef.current.getMap().setCenter([marker.long, marker.lat]);
                                         setScopedType('route-point');
                                     }}
-                                    popup={new mapboxgl.Popup().setHTML(`
-                                    <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
-                                        ${marker.title}
-                                    </div>`)}
+                                    popup={
+                                            
+                                        marker.mediafile && marker.mediafile.formats ? new mapboxgl.Popup().setHTML(`
+                                        <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
+                                        <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
+                                        <p className='briem-font text-[26px] text-[#000]' >
+                                            ${marker.title}
+                                        </p>
+                                        </Stack>
+                                        <img src=${marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>
+                                        <Divider></Divider>
+                                        </div>`) : 
+                                        new mapboxgl.Popup().setHTML(`
+                                        <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
+                                        <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
+                                        <p className='briem-font text-[22px] text-[#000]' >
+                                            ${marker.title}
+                                        </p>
+                                        </Stack>
+                                        <Divider></Divider>
+                                        </div>`)}
                                 >
 
                                     <div className={'cursor-pointer flex flex-col justify-center'}
