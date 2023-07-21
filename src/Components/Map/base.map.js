@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, createRef } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { env_vars } from '../../Config/env';
 import { Box } from '@mui/material';
@@ -16,12 +16,12 @@ import {
 
 } from '../../Constants/constants';
 import { getContentForChannel, getSubChannel } from '../../Client/mvc.client';
-import { Marker, Map, MapProvider, Source, Layer, Popup } from 'react-map-gl';
-import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow, CommunityPopup } from './components.map';
-import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
+import { Marker, Map, Source, Layer, Popup } from 'react-map-gl';
+import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow } from './components.map';
+import { createLayer, createLineGeoJson, createPolygonLayer, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
-import { createRoot } from 'react-dom/client';
+import { getPopup, getPopupHTML } from './popup.map';
 mapboxgl.accessToken = env_vars.ACCESS_TOKEN
 
 
@@ -42,7 +42,7 @@ export default function BaseMap() {
     const [showRouteMarkers, setShowRouteMarkers] = useState(false);
     const [communityOverlay, setCommunityOverlay] = useState([]);
     const [routeOverlay, setRouteOverlay] = useState([]);
-
+    const [specialPopup, setSpecialPopup] = useState({})
     useEffect(() => {
         getAllMapData();
     }, [])
@@ -74,12 +74,11 @@ export default function BaseMap() {
             });
             setMapData(mapTempData);
             setAllCommunity(allCommunities);
-            console.log(mapTempData);
         })
     }
 
     const returnTitle = (community) => community.split("-").join(" ");
-    
+
     const getRouteMarkers = (community, route) => {
         var routeMarkersTemp = [];
         for (const [key1, value1] of Object.entries(mapData)) {
@@ -96,17 +95,17 @@ export default function BaseMap() {
             }
         }
         setRouteMarkers(routeMarkersTemp);
-        const lats = routeMarkersTemp.map(elem=>elem.lat)
-        const lngs = routeMarkersTemp.map(elem=>elem.long)
+        const lats = routeMarkersTemp.map(elem => elem.lat)
+        const lngs = routeMarkersTemp.map(elem => elem.long)
         var minLat = Math.min(...lats);
         var maxLat = Math.max(...lats);
         var minLng = Math.min(...lngs);
         var maxLng = Math.max(...lngs);
-    
+
         mapRef.current.getMap().fitBounds([
             [maxLng, minLat], // southwestern corner of the bounds
             [minLng, maxLat] // northeastern corner of the bounds
-        ])        
+        ])
     }
 
     const getRouteStartMarkers = (community) => {
@@ -127,35 +126,35 @@ export default function BaseMap() {
     const handleCommunity = (community) => {
         // // if (showRoutes) setShowRouteMarkers(false);
         // if (routeStartMarkers.length !== 0) setShowRoutes(!showRoutes);
+        setShowMenu(false)
         const communityStartMarkers = getRouteStartMarkers(community)
         setRouteStartMarkers(communityStartMarkers)
         setShowRoutes(true)
-        if (routeStartMarkers.length !== 0) {
-            fixZoom(8);
-            mapRef.current.getMap().setCenter([routeStartMarkers[0].long, routeStartMarkers[0].lat]);
-        }
+        panTo([communityStartMarkers[0].long, communityStartMarkers[0].lat], 8);
+        getCommunityOverlay(community)
         getRouteStartMarkers(community);
+        setSelectedCommunity(allCommunity.find(e => e.name === community))
+
     }
 
     const getCommunityOverlay = (community) => {
-        for(const [key, values] of Object.entries(mapData)){
+        for (const [key, values] of Object.entries(mapData)) {
             var data = JSON.parse(key);
-            if(data.name === community){
+            if (data.name === community) {
                 const filtered = Object.entries(data.overlay).filter(([key, value]) => value !== null)
                 const final = Object.fromEntries(filtered);
                 setCommunityOverlay(final);
-                console.log(final);
             }
         }
     }
 
     const getRouteOverlay = (community, route) => {
-        for(const [key1, value1] of Object.entries(mapData)){
+        for (const [key1, value1] of Object.entries(mapData)) {
             var data1 = JSON.parse(key1);
-            if(data1.name === community){
-                for(const [key2, value2] of Object.entries(value1)){
+            if (data1.name === community) {
+                for (const [key2, value2] of Object.entries(value1)) {
                     var data2 = JSON.parse(key2);
-                    if(data2.name === route){
+                    if (data2.name === route) {
                         const filtered = Object.entries(data2.overlay).filter(([key, value]) => value !== null)
                         const final = Object.fromEntries(filtered);
                         setRouteOverlay(final);
@@ -205,7 +204,7 @@ export default function BaseMap() {
             mapRef.current.flyTo(
                 {
                     center: coords, zoom: zoom,
-                    speed:5,
+                    speed: 5,
                     curve: 1,
                     easing(t) {
                         return t;
@@ -231,8 +230,37 @@ export default function BaseMap() {
             else nextMarker = Math.max(indexOfScopedMarker - 1, 0);
         }
         setScopedMarker(routeMarkers[nextMarker]);
+        createPopup(routeMarkers[nextMarker]);
         mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
     }
+
+    useEffect(()=>{
+        if (specialPopup!=={} && mapRef.current){
+
+            specialPopup.addTo(mapRef.current.getMap())
+
+        }
+    }, [specialPopup])
+
+    const createPopup = (marker) => {
+        if (Object.keys(specialPopup).length !== 0 && specialPopup.constructor !== Object){
+            console.log(specialPopup)
+            specialPopup.remove()
+        }
+        
+
+        setSpecialPopup(
+            new mapboxgl.Popup()
+                .setLngLat([marker.long, marker.lat])
+                .setHTML(getPopupHTML(marker))
+        )
+
+
+    }
+    
+
+    
+
 
 
     return (
@@ -267,8 +295,8 @@ export default function BaseMap() {
                     </Box>
                     <Box sx={{ backgroundImage: COMPASS_ASSET, zIndex: 11, backgroundSize: "cover", width: 100, height: 100, zIndex: 2, position: 'absolute', top: '50px', right: '50px' }} />
                     <div id={'community'}>
-                        {(routeStartMarkers.length===0 || !showRoutes) && allCommunity.map((community, index) => {
-                            return(
+                        {(routeStartMarkers.length === 0 || !showRoutes) && allCommunity.map((community, index) => {
+                            return (
                                 <Box>
                                     <Marker
                                         longitude={community.long}
@@ -279,94 +307,72 @@ export default function BaseMap() {
                                             setSelectedCommunity(community);
                                             getCommunityOverlay(community.name);
                                         }}
-                                           onMouseEnter={() => {setScopedMarker(community); setShowPopup(true);}}
-                                           onMouseLeave={() => {setShowPopup(false);}}
-                                           style={{"text-transform": "capitalize"}}
-                                           className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> {returnTitle(community.name)} </p>
+                                            onMouseEnter={() => { setScopedMarker(community); setShowPopup(true); }}
+                                            onMouseLeave={() => { setShowPopup(false); }}
+                                            style={{ "text-transform": "capitalize" }}
+                                            className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> {returnTitle(community.name)} </p>
                                     </Marker>
                                 </Box>);
                         })}
                     </div>
                     <div id={'routes'}>
-                    {showRoutes && (routeMarkers.length===0 || !showRouteMarkers) && routeStartMarkers && routeStartMarkers.length != 0 &&
-                        routeStartMarkers.map(marker => {
-                            return (
-                                <div className={"flex "}>
-                                    <Marker
-                                        longitude={marker.long}
-                                        latitude={marker.lat}
-                                        onClick={()=>{
-                                                if(!showRouteMarkers) panTo([marker.long, marker.lat], 9.8);
+                        {showRoutes && (routeMarkers.length === 0 || !showRouteMarkers) && routeStartMarkers && routeStartMarkers.length != 0 &&
+                            routeStartMarkers.map(marker => {
+                                return (
+                                    <div className={"flex "}>
+                                        <Marker
+                                            longitude={marker.long}
+                                            latitude={marker.lat}
+                                            onClick={() => {
+                                                if (!showRouteMarkers) panTo([marker.long, marker.lat], 9.8);
                                                 getRouteMarkers(selectedCommunity.name, marker.name);
                                                 getRouteOverlay(selectedCommunity.name, marker.name);
                                                 setShowRouteMarkers(!showRouteMarkers)
-                                                fixZoom(9.8);
-                                                mapRef.current.getMap().setCenter([marker.long, marker.lat]);
                                             }}
                                         >
-                                        <div className={'cursor-pointer '}>
-                                            <img
-                                                onMouseEnter={() => { setScopedMarker(marker); setShowPopup(true); }}
-                                                onMouseLeave={() => { setShowPopup(false); }}
-                                                className={'shadow-2xl'}
-                                                src={ROUTE_START_IMG} alt={marker.uniqueID} style={{ height: "40px" }}
-                                            />
+                                            <div className={'cursor-pointer '}>
+                                                <img
+                                                    onMouseEnter={() => { setScopedMarker(marker); setShowPopup(true); }}
+                                                    onMouseLeave={() => { setShowPopup(false); }}
+                                                    className={'shadow-2xl'}
+                                                    src={ROUTE_START_IMG} alt={marker.uniqueID} style={{ height: "40px" }}
+                                                />
+                                            </div>
+                                        </Marker>
+                                    </div>);
+                            })}
+                    </div>
+                    <div id={'route-points'}>
+                        {showRouteMarkers && routeMarkers && routeMarkers.length != 0 && routeMarkers.map((marker, index) => {
+
+                            return (
+                                <div>
+                                    <Marker
+                                        longitude={marker.long}
+                                        latitude={marker.lat}
+                                        onClick={() => {
+                                            panTo([marker.long, marker.lat], mapRef.current.getZoom());
+
+                                        }}
+                                        popup={getPopup(marker)}
+                                    >
+
+                                        <div className={'cursor-pointer flex flex-col justify-center'}
+                                        >
+                                            {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
+                                                <>
+                                                    <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[30px] h-[40px]'} />
+                                                    <p className={'briem-font text-[#894E35] text-[18px]'}>{marker.title}</p>
+                                                </> :
+                                                <>
+                                                    <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[20px] h-[30px]'} />
+                                                    <p className={'hover:underline-offset-2 hover:underline briem-font text-[#894E35] text-[14px]'}>{marker.title}</p>
+                                                </>
+                                            }
                                         </div>
                                     </Marker>
                                 </div>);
-                    })}
-                    </div>
-                    <div id={'route-points'}>
-                    {showRouteMarkers && routeMarkers && routeMarkers.length != 0 && routeMarkers.map(marker => {
-                        return (
-                            <div>
-                                <Marker
-                                    longitude={marker.long}
-                                    latitude={marker.lat}
-                                    onClick={() => {
-                                        panTo([marker.long, marker.lat], 13);
-                                        mapRef.current.getMap().setMinZoom(13);
-                                        mapRef.current.getMap().setCenter([marker.long, marker.lat]);
-                                    }}
-                                    popup={
-                                            
-                                        marker.mediafile && marker.mediafile.formats ? new mapboxgl.Popup().setHTML(`
-                                        <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
-                                        <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
-                                        <p className='briem-font text-[26px] text-[#000]' >
-                                            ${marker.title}
-                                        </p>
-                                        </Stack>
-                                        <img src=${marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>
-                                        <Divider></Divider>
-                                        </div>`) : 
-                                        new mapboxgl.Popup().setHTML(`
-                                        <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
-                                        <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
-                                        <p className='briem-font text-[22px] text-[#000]' >
-                                            ${marker.title}
-                                        </p>
-                                        </Stack>
-                                        <Divider></Divider>
-                                        </div>`)}
-                                >
-
-                                    <div className={'cursor-pointer flex flex-col justify-center'}
-                                    >
-                                        {(scopedMarker.lat == marker.lat && scopedMarker.long == marker.long) ?
-                                            <>
-                                                <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[30px] h-[40px]'}/>
-                                                <p className={'briem-font text-[#894E35] text-[18px]'}>{marker.title}</p>
-                                            </>:
-                                            <>
-                                                <img src={ROUTE_POINTER_IMG} className={'mx-auto w-[20px] h-[30px]'}/>
-                                                <p className={'hover:underline-offset-2 hover:underline briem-font text-[#894E35] text-[14px]'}>{marker.title}</p>
-                                            </>
-                                        }
-                                    </div>
-                                </Marker>
-                            </div>);
-                    })}
+                        })}
                     </div>
                     <Source id="routes" type="geojson" data={geojson}>
                         {showRouteMarkers && <Layer {...createLayer()}></Layer>}
@@ -396,7 +402,7 @@ export default function BaseMap() {
                                 closeButton={false}
                                 offset={20}
                             >
-                                <MapPopup marker={scopedMarker}/>
+                                <MapPopup marker={scopedMarker} />
                             </Popup>
                         }
                     </div>
@@ -404,25 +410,25 @@ export default function BaseMap() {
                         <ZoomStepper zoom={MAP_ZOOM} />
                     </Box>
                     <div id={'arrows'}>
-                    {showRouteMarkers &&
-                        <>
-                            <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
-                                <div onClick={()=>scroll(-1)}><PrevArrow/></div>
-                            </Box>
-                            <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
-                                <div onClick={()=>scroll(1)}><NextArrow /></div>
-                            </Box>
-                        </>
-                    }
+                        {showRouteMarkers &&
+                            <>
+                                <Box sx={{ position: 'absolute', bottom: "50px", left: "80px", zIndex: 10 }}>
+                                    <div onClick={() => scroll(-1)}><PrevArrow /></div>
+                                </Box>
+                                <Box sx={{ position: 'absolute', bottom: "50px", right: "125px", zIndex: 10 }}>
+                                    <div onClick={() => scroll(1)}><NextArrow /></div>
+                                </Box>
+                            </>
+                        }
                     </div>
                     <div id={'community-overlays'}>
                         {(showRoutes || showRouteMarkers) &&
                             <>
                                 <Marker
-                                    longitude={(communityOverlay.br_long+communityOverlay.tl_long)/2}
-                                    latitude={(communityOverlay.br_lat+communityOverlay.tl_lat)/2}>
+                                    longitude={(communityOverlay.br_long + communityOverlay.tl_long) / 2}
+                                    latitude={(communityOverlay.br_lat + communityOverlay.tl_lat) / 2}>
                                     <div className={'cursor-pointer'}>
-                                        <img src={communityOverlay.image.url} alt={'overlay'}/>
+                                        <img src={communityOverlay.image.url} alt={'overlay'} />
                                     </div>
                                 </Marker>
                             </>
@@ -432,10 +438,10 @@ export default function BaseMap() {
                         {(showRouteMarkers) &&
                             <>
                                 <Marker
-                                    longitude={(routeOverlay.br_long+routeOverlay.tl_long)/2}
-                                    latitude={(routeOverlay.br_lat+routeOverlay.tl_lat)/2}>
+                                    longitude={(routeOverlay.br_long + routeOverlay.tl_long) / 2}
+                                    latitude={(routeOverlay.br_lat + routeOverlay.tl_lat) / 2}>
                                     <div className={'cursor-pointer'}>
-                                        <img src={routeOverlay.image.url} alt={'overlay'}/>
+                                        <img src={routeOverlay.image.url} alt={'overlay'} />
                                     </div>
                                 </Marker>
                             </>
