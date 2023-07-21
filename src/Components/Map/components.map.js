@@ -40,31 +40,32 @@ export function ZoomStepper({ zoom }) {
 
 }
 
-export function MapPopup({ marker, showArrows, leftArrow, rightArrow }) {
-
+export function MapPopup({ marker, showArrows, leftArrow, rightArrow, type}) {
     return (
 
         <div className={"px-5 py-2 bg-center bg-no-repeat bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
-            <Stack direction="row" style={{ marginTop: 1 }} justifyContent="space-between" alignItems="center">
-                <p className='briem-font text-[22px] text-[#000]' >
-                    {marker.title}{marker.name}
-                </p>
-            </Stack>
+            {type==="community" &&
+                <div className={'text-[#314832]'}>
+                    <span className='text-[18px] font-[600]'>{marker.name}</span>
+                    <span className='text-[16px] font-[400] px-2'>{marker.description}</span>
+                </div>
+            }
+            {type==="route-start" &&
+                <div className={'text-[#D64D22] pb-[50px]'}>
+                    <span className='text-[18px] font-[400]'>{marker.name}</span>
+                </div>
+            }
+            {type==="route-point" &&
+                <></>
+            }
             {marker.mediafile && marker.mediafile.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
-            <Divider></Divider>
-            <Typography variant="subtitle2">Lorem ipsum dolor sit amet</Typography>
-            {showArrows && <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }}>
+            {showArrows &&
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }}>
+                    <Divider></Divider>
+
                 <Button onClick={leftArrow} sx={{ backgroundColor: "goldenrod", ':hover': { backgroundColor: "goldenrod", opacity: 0.5, } }}><img src={ARROW_PREV_IMG} alt={'prev'} /></Button>
                 <Button onClick={rightArrow} sx={{ backgroundColor: "goldenrod", ':hover': { backgroundColor: "goldenrod", opacity: 0.5, } }}><img src={ARROW_NEXT_IMG} alt={'next'} /></Button>
             </Box>}
-        </div>
-    )
-}
-
-export function CommunityPopup({ marker}) {
-    return (
-        <div className={"bg-cover bg-center h-[20px] bg-[url('../public/Assets/Images/inset_map_overlay.png')]"}>
-            <p className='briem-font text-[16px] text-[#000]' >{marker.name}</p>
         </div>
     )
 }

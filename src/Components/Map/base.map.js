@@ -16,9 +16,9 @@ import {
 
 } from '../../Constants/constants';
 import { getContentForChannel, getSubChannel } from '../../Client/mvc.client';
-import { Marker, Map, Source, Layer, Popup } from 'react-map-gl';
+import { Marker, Map, MapProvider, Source, Layer, Popup } from 'react-map-gl';
 import { MapPopup, ZoomStepper, NextArrow, ExitArrow, PrevArrow } from './components.map';
-import { createLayer, createLineGeoJson, createPolygonLayer, getStateJson } from './utils.map';
+import { createLayer, createLineGeoJson, createPolygonLayer, createStatePolygon, getStateJson } from './utils.map';
 import Menu from '../Menu/menu';
 import MenuIcon from "@mui/icons-material/Menu";
 import { getPopup, getPopupHTML } from './popup.map';
@@ -43,6 +43,8 @@ export default function BaseMap() {
     const [communityOverlay, setCommunityOverlay] = useState([]);
     const [routeOverlay, setRouteOverlay] = useState([]);
     const [specialPopup, setSpecialPopup] = useState({})
+    const [scopedType, setScopedType] = useState('route-point');
+
     useEffect(() => {
         getAllMapData();
     }, [])
@@ -307,10 +309,10 @@ export default function BaseMap() {
                                             setSelectedCommunity(community);
                                             getCommunityOverlay(community.name);
                                         }}
-                                            onMouseEnter={() => { setScopedMarker(community); setShowPopup(true); }}
-                                            onMouseLeave={() => { setShowPopup(false); }}
-                                            style={{ "text-transform": "capitalize" }}
-                                            className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> {returnTitle(community.name)} </p>
+                                           onMouseEnter={() => {setScopedMarker(community); setShowPopup(true); setScopedType('community');}}
+                                           onMouseLeave={() => {setShowPopup(false);}}
+                                           style={{"text-transform": "capitalize"}}
+                                           className={'z-50 shadow-2xl font-[900] ml-5 mb-5 text-[20px] text-[#356693] cursor-pointer briem-font'}> {returnTitle(community.name)} </p>
                                     </Marker>
                                 </Box>);
                         })}
@@ -401,8 +403,9 @@ export default function BaseMap() {
                                 latitude={scopedMarker.lat}
                                 closeButton={false}
                                 offset={20}
+                                maxWidth={"500px"}
                             >
-                                <MapPopup marker={scopedMarker} />
+                                <MapPopup marker={scopedMarker} type={scopedType}/>
                             </Popup>
                         }
                     </div>
