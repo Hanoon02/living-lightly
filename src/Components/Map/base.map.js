@@ -107,7 +107,8 @@ export default function BaseMap() {
         mapRef.current.getMap().fitBounds([
             [maxLng, minLat], // southwestern corner of the bounds
             [minLng, maxLat] // northeastern corner of the bounds
-        ])
+        ],
+        { padding: 100 } )
     }
 
     const getRouteStartMarkers = (community) => {
@@ -192,6 +193,9 @@ export default function BaseMap() {
             fixZoom(8);
             setShowRouteMarkers(false);
             panTo([routeStartMarkers[0].long, routeStartMarkers[0].lat], 8);
+            if (Object.keys(specialPopup).length !== 0 && specialPopup.constructor !== Object){
+                specialPopup.remove()
+            }
         }
         else {
             fixZoom(0);
@@ -218,7 +222,7 @@ export default function BaseMap() {
 
     const fixZoom = (zoom) => {
         const map = mapRef.current.getMap();
-        map.setMinZoom(zoom);
+        //map.setMinZoom(zoom);
     }
 
     const scroll = (direction) => {
@@ -233,7 +237,16 @@ export default function BaseMap() {
         }
         setScopedMarker(routeMarkers[nextMarker]);
         createPopup(routeMarkers[nextMarker]);
-        mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
+        mapRef.current.getMap().flyTo(                
+        {
+            center: [routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat], 
+            speed: 1,
+            curve: 1,
+            easing(t) {
+                return t;
+            }
+        },);
+        //mapRef.current.getMap().setCenter([routeMarkers[nextMarker].long, routeMarkers[nextMarker].lat]);
     }
 
     useEffect(()=>{
@@ -246,11 +259,9 @@ export default function BaseMap() {
 
     const createPopup = (marker) => {
         if (Object.keys(specialPopup).length !== 0 && specialPopup.constructor !== Object){
-            console.log(specialPopup)
             specialPopup.remove()
         }
         
-
         setSpecialPopup(
             new mapboxgl.Popup()
                 .setLngLat([marker.long, marker.lat])

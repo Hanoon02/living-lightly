@@ -5,10 +5,10 @@ import { Add, Remove, Close } from '@mui/icons-material';
 import { useMap } from 'react-map-gl';
 export function ZoomStepper({ zoom }) {
     const { current: map } = useMap();
-    const [zoomLevel, setZoomLevel] = useState(zoom)
+    /*const [zoomLevel, setZoomLevel] = useState(zoom)
     useEffect(() => {
         map.zoomTo(zoomLevel)
-    }, [zoomLevel])
+    }, [zoomLevel])*/
 
     return (
         <ButtonGroup variant="contained">
@@ -20,8 +20,8 @@ export function ZoomStepper({ zoom }) {
                         opacity: 0.5,
                     }
                 }} onClick={() => {
-                    setZoomLevel(Math.min(zoomLevel + 2, ZOOM_IN_LIMIT))
-
+                    //setZoomLevel(Math.min(map.getZoom() + 2, ZOOM_IN_LIMIT))
+                    map.zoomTo(Math.min(map.getZoom() + 2, ZOOM_IN_LIMIT))
                 }}>
                 <Add />
             </Button>
@@ -31,7 +31,8 @@ export function ZoomStepper({ zoom }) {
                     opacity: 0.5,
                 }
             }} onClick={() => {
-                setZoomLevel(Math.max(zoomLevel - 2, ZOOM_OUT_LIMIT))
+                //setZoomLevel(Math.max(map.getZoom() - 2, ZOOM_OUT_LIMIT))
+                map.zoomTo(Math.max(map.getZoom() - 2, ZOOM_OUT_LIMIT))
             }}>
                 <Remove />
             </Button>
@@ -53,13 +54,13 @@ export function MapPopup({ marker, showArrows, leftArrow, rightArrow, type}) {
             }
             {type==="route-start" &&
                 <div className={'text-[#D64D22] pb-[50px]'}>
-                    <span className='text-[18px] font-[400]'>{marker.name}</span>
+                    <b><span className='text-[18px] font-[400]'>{marker.name}</span></b>
                 </div>
             }
             {type==="route-point" &&
                 <></>
             }
-            {marker.mediafile?.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
+            {marker.mediafile?.formats && <img src={marker.mediafile.url} style={{ height: "100px", marginTop: 5 }}></img>}
             {showArrows &&
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }}>
                     <Divider></Divider>
