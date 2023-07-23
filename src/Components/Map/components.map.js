@@ -48,7 +48,7 @@ export function MapPopup({ marker, showArrows, leftArrow, rightArrow, type}) {
                 <div className={'text-[#314832]'}>
                     <span className='text-[18px] font-[600]'>{marker.name}</span>
                     <span className='text-[16px] font-[400] px-2'>{marker.description}</span>
-                    {marker.picture.url && <img src={marker.picture.url} style={{ height: "100px", marginTop: 5 }} alt={'image'}/>}
+                    {marker.picture?.url && <img src={marker.picture.url} style={{ height: "100px", marginTop: 5 }} alt={'image'}/>}
                 </div>
             }
             {type==="route-start" &&
@@ -59,7 +59,7 @@ export function MapPopup({ marker, showArrows, leftArrow, rightArrow, type}) {
             {type==="route-point" &&
                 <></>
             }
-            {marker.mediafile && marker.mediafile.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
+            {marker.mediafile?.formats && <img src={marker.mediafile.formats.large.url} style={{ height: "100px", marginTop: 5 }}></img>}
             {showArrows &&
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }}>
                     <Divider></Divider>
