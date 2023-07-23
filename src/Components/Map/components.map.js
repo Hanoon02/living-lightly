@@ -48,6 +48,7 @@ export function MapPopup({ marker, showArrows, leftArrow, rightArrow, type}) {
                 <div className={'text-[#314832]'}>
                     <span className='text-[18px] font-[600]'>{marker.name}</span>
                     <span className='text-[16px] font-[400] px-2'>{marker.description}</span>
+                    {marker.picture.url && <img src={marker.picture.url} style={{ height: "100px", marginTop: 5 }} alt={'image'}/>}
                 </div>
             }
             {type==="route-start" &&
